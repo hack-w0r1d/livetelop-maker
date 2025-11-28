@@ -17,10 +17,10 @@
 <body>
 
 <!-- ここに動画を表示 -->
-<video id="pipVideo" autoplay muted loop playsinline controls style="width:1200px; height:100px; margin-bottom:10px;"></video>
+<video id="pipVideo" autoplay muted loop playsinline controls style="width:800px; height:100px; margin-bottom:10px;"></video>
 
 <!-- Canvasで動画生成 -->
-<canvas id="canvas" width="1200" height="100" style="display:none;"></canvas>
+<canvas id="canvas" width="800" height="100" style="display:none;"></canvas>
 <div id="marquee">これはテロップ用サンプルコメントです。ここにお知らせや注意事項などを書くことができます。</div>
 <button id="startBtn">動画化開始</button>
 
@@ -32,6 +32,15 @@ const startBtn = document.getElementById('startBtn');
 const video = document.getElementById('pipVideo');
 
 startBtn.addEventListener('click', () => {
+  const text = marquee.textContent;
+  const fontSize = 48;
+  ctx.font = `$(fontSize)px sans-serif`;
+
+  // 文字幅を計算して Canvas 幅を調整
+  const textWidth = ctx.measureText(text).width;
+  canvas.width = textWidth + 800; // 画面外から流す分の余白を追加
+  canvas.height = 100;
+  
   const stream = canvas.captureStream(60); // 60fps
   const recorder = new MediaRecorder(stream, { mimeType: 'video/webm' });
   const chunks = [];
@@ -64,10 +73,10 @@ startBtn.addEventListener('click', () => {
     ctx.fillStyle = 'black';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     ctx.fillStyle = 'orange';
-    ctx.font = '48px sans-serif';
+    ctx.font = `${fontSize}px sans-serif`;
     ctx.fillText(text, x, 70);
     x -= speed;
-    if (x < -ctx.measureText(text).width) x = canvas.width;
+    if (x < -textWidth) x = canvas.width;
   }
 
   let frames = 0;
