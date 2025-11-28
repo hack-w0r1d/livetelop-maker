@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>長文可変テロップ動画サンプル</title>
+<title>ループ再生テロップ動画サンプル</title>
 <style>
   body {
     margin: 0;
@@ -12,21 +12,16 @@
     flex-direction: column;
     align-items: center;
   }
-  video {
-    width: 800px;
-    height: 100px;
-    margin-bottom: 10px;
-  }
 </style>
 </head>
 <body>
 
-<video id="pipVideo" autoplay muted loop playsinline controls></video>
+<!-- ここに動画を表示 -->
+<video id="pipVideo" autoplay muted loop playsinline controls style="width:800px; height:100px; margin-bottom:10px;"></video>
 
+<!-- Canvasで動画生成 -->
 <canvas id="canvas" width="800" height="100" style="display:none;"></canvas>
-<div id="marquee">
-これはテロップ用サンプルコメントです。ここにお知らせや注意事項などを書くことができます。
-</div>
+<div id="marquee">⚡ これはループ再生テロップ動画サンプルです！ ⚡</div>
 <button id="startBtn">動画化開始</button>
 
 <script>
@@ -37,17 +32,6 @@ const startBtn = document.getElementById('startBtn');
 const video = document.getElementById('pipVideo');
 
 startBtn.addEventListener('click', () => {
-  const text = marquee.textContent;
-  const fontSize = 70;
-  ctx.font = `${fontSize}px sans-serif`;
-
-  // 文字幅を測定
-  const textWidth = ctx.measureText(text).width;
-
-  // Canvasの幅を文字幅 + 画面幅 + 余白に調整
-  canvas.width = textWidth + 800; 
-  canvas.height = 100;
-
   const stream = canvas.captureStream(60); // 60fps
   const recorder = new MediaRecorder(stream, { mimeType: 'video/webm' });
   const chunks = [];
@@ -60,22 +44,30 @@ startBtn.addEventListener('click', () => {
     // videoタグに読み込んで自動ループ再生
     video.src = url;
     video.play();
+
+    // ダウンロードリンクも作る
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'marquee_video.webm';
+    a.textContent = '動画をダウンロード';
+    document.body.appendChild(a);
   };
 
   recorder.start();
 
   let x = canvas.width;
   const speed = 2; // 横スクロール速度
+  const text = marquee.textContent;
 
   function draw() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.fillStyle = 'black';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
-    ctx.fillStyle = 'orange';
-    ctx.font = `${fontSize}px sans-serif`;
+    ctx.fillStyle = 'yellow';
+    ctx.font = '48px sans-serif';
     ctx.fillText(text, x, 70);
     x -= speed;
-    if (x < -textWidth) x = canvas.width;
+    if (x < -ctx.measureText(text).width) x = canvas.width;
   }
 
   let frames = 0;
