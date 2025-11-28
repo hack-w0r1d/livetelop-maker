@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ループ再生テロップ動画サンプル</title>
+<title>長文可変テロップ動画サンプル</title>
 <style>
   body {
     margin: 0;
@@ -12,16 +12,21 @@
     flex-direction: column;
     align-items: center;
   }
+  video {
+    width: 800px;
+    height: 100px;
+    margin-bottom: 10px;
+  }
 </style>
 </head>
 <body>
 
-<!-- ここに動画を表示 -->
-<video id="pipVideo" autoplay muted loop playsinline controls style="width:800px; height:100px; margin-bottom:10px;"></video>
+<video id="pipVideo" autoplay muted loop playsinline controls></video>
 
-<!-- Canvasで動画生成 -->
 <canvas id="canvas" width="800" height="100" style="display:none;"></canvas>
-<div id="marquee">これはテロップ用サンプルコメントです。ここにお知らせや注意事項などを書くことができます。</div>
+<div id="marquee">
+これはテロップ用サンプルコメントです。ここにお知らせや注意事項などを書くことができます。
+</div>
 <button id="startBtn">動画化開始</button>
 
 <script>
@@ -33,14 +38,16 @@ const video = document.getElementById('pipVideo');
 
 startBtn.addEventListener('click', () => {
   const text = marquee.textContent;
-  const fontSize = 80;
+  const fontSize = 70;
   ctx.font = `${fontSize}px sans-serif`;
 
-  // 文字幅を計算して Canvas 幅を調整
+  // 文字幅を測定
   const textWidth = ctx.measureText(text).width;
-  canvas.width = textWidth + 800; // 画面外から流す分の余白を追加
+
+  // Canvasの幅を文字幅 + 画面幅 + 余白に調整
+  canvas.width = textWidth + 800; 
   canvas.height = 100;
-  
+
   const stream = canvas.captureStream(60); // 60fps
   const recorder = new MediaRecorder(stream, { mimeType: 'video/webm' });
   const chunks = [];
@@ -53,13 +60,6 @@ startBtn.addEventListener('click', () => {
     // videoタグに読み込んで自動ループ再生
     video.src = url;
     video.play();
-
-    // ダウンロードリンクも作る
-    // const a = document.createElement('a');
-    // a.href = url;
-    // a.download = 'marquee_video.webm';
-    // a.textContent = '動画をダウンロード';
-    // document.body.appendChild(a);
   };
 
   recorder.start();
