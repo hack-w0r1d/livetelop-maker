@@ -11,9 +11,12 @@
     <!-- ここに動画を表示 -->
     <video id="pipVideo" autoplay muted loop playsinline controls></video>
 
+    <input type="text" id="telopInput" placeholder="テロップにしたい文字を入力">
+    <button id="applyTelop">テロップ更新</button>
+
     <!-- Canvasで動画生成 -->
     <canvas id="canvas" width="800" height="100"></canvas>
-    <div id="marquee"> ここにお知らせや注意事項を書いてテロップとして流すことができます。 </div>
+    <div id="telopPreview">ここにお知らせや注意事項を書いてテロップとして流すことができます。</div>
     <button id="startBtn">テロップ作成</button>
     <button id="pipBtn">テロップ使用</button>
     <script src="script.js"></script>

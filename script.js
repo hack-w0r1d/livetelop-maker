@@ -1,9 +1,10 @@
 const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d', { alpha: false });
-const marquee = document.getElementById('marquee');
 const startBtn = document.getElementById('startBtn');
 const video = document.getElementById('pipVideo');
 const pipBtn = document.getElementById('pipBtn');
+const preview = document.getElementById("telopPreview");
+let telopText = "ここにお知らせや注意事項を書いてテロップとして流すことができます。";
 
 pipBtn.addEventListener('click', async () => {
     try {
@@ -19,6 +20,14 @@ pipBtn.addEventListener('click', async () => {
     }
 });
 
+document.getElementById("applyTelop").addEventListener('click', () => {
+    const text = document.getElementById("telopInput").value;
+    if (!text) return;
+
+    telopText = text;
+    preview.textContent = text;
+});
+
 startBtn.addEventListener('click', () => {
     const stream = canvas.captureStream(60); // 60fps
     const recorder = new MediaRecorder(stream, { mimeType: 'video/webm' });
@@ -27,10 +36,9 @@ startBtn.addEventListener('click', () => {
     recorder.ondataavailable = e => chunks.push(e.data);
     recorder.onstop = e => {
     const blob = new Blob(chunks, { type: 'video/webm' });
-    const url = URL.createObjectURL(blob);
 
     // videoタグに読み込んで自動ループ再生
-    video.src = url;
+    video.src = URL.createObjectURL(blob);
     video.play();
     };
 
@@ -38,16 +46,15 @@ startBtn.addEventListener('click', () => {
 
     let x = canvas.width;
     const speed = 2; // 横スクロール速度
-    const text = marquee.textContent;
+    const text = telopText;
     ctx.font = '48px sans-serif';
-    const textWidth = ctx.measureText(text).width;
+    const textWidth = ctx.measureText(telopText).width;
 
     function draw() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.fillStyle = 'black';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     ctx.fillStyle = 'white';
-    ctx.font = '48px sans-serif';
     ctx.fillText(text, x, 70);
     x -= speed;
     }
