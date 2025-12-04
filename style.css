@@ -8,7 +8,6 @@ body {
 }
 
 button {
-    background-color: #1e90ff;
     color: white;
     border: none;
     border-radius: 8px;
@@ -19,13 +18,11 @@ button {
 }
 
 button:hover {
-    background-color: #0d6efd;
     transform: translateY(-2px);
 }
 
 button:active {
     transform: translateY(1px);
-    background-color: #0b5ed7;
 }
 
 video {
@@ -47,9 +44,18 @@ canvas {
     margin-bottom: 10px;
 }
 
-#applyTelop {
+#updateTelopBtn {
+    background-color: #ff3860;
     margin-top: 10px;
     margin-bottom: 10px;
+}
+
+#updateTelopBtn:hover {
+    background-color: #ff1f4b;
+}
+
+#updateTelopBtn:active {
+    background-color: #e6003e;
 }
 
 #telopPreview {
@@ -60,19 +66,30 @@ canvas {
     margin-bottom: 10px;
 }
 
-#startBtn {
+#createTelopBtn {
+    background-color: #2ecc71;
     margin-top: 10px;
     margin-bottom: 10px;
+}
+
+#createTelopBtn:hover {
+    background-color: #27ae60;
+}
+
+#createTelopBtn:active {
+    background-color: #219150;
 }
 
 #pipBtn {
+    background-color: #1e90ff;
     margin-top: 10px;
     margin-bottom: 10px;
 }
 
-/* #pipBtn {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    z-index: 9999;
-} */
+#pipBtn:hover {
+    background-color: #0d6efd;
+}
+
+#pipBtn:active {
+    background-color: #0b5ed7;
+}

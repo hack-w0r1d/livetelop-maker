@@ -1,6 +1,6 @@
 const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d', { alpha: false });
-const startBtn = document.getElementById('startBtn');
+const startBtn = document.getElementById('createTelopBtn');
 const video = document.getElementById('pipVideo');
 const pipBtn = document.getElementById('pipBtn');
 const preview = document.getElementById("telopPreview");
@@ -20,7 +20,7 @@ pipBtn.addEventListener('click', async () => {
     }
 });
 
-document.getElementById("applyTelop").addEventListener('click', () => {
+document.getElementById("updateTelopBtn").addEventListener('click', () => {
     const text = document.getElementById("telopInput").value;
     if (!text) return;
 
