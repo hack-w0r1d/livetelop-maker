@@ -8,65 +8,14 @@
   </head>
   <body>
     <h1>LiveTelop Maker</h1>
-  <!-- ここに動画を表示 -->
-  <video id="pipVideo" autoplay muted loop playsinline controls style="width:800px; height:100px; margin-bottom:10px;"></video>
+    <!-- ここに動画を表示 -->
+    <video id="pipVideo" autoplay muted loop playsinline controls style="width:800px; height:100px; margin-bottom:10px;"></video>
 
-  <!-- Canvasで動画生成 -->
-  <canvas id="canvas" width="800" height="100" style="display:none;"></canvas>
-  <div id="marquee"> ここにお知らせや注意事項を書いてテロップとして流すことができます。 </div>
-  <button id="startBtn">テロップ作成</button>
-
-  <script>
-  const canvas = document.getElementById('canvas');
-  const ctx = canvas.getContext('2d', { alpha: false });
-  const marquee = document.getElementById('marquee');
-  const startBtn = document.getElementById('startBtn');
-  const video = document.getElementById('pipVideo');
-
-  startBtn.addEventListener('click', () => {
-    const stream = canvas.captureStream(60); // 60fps
-    const recorder = new MediaRecorder(stream, { mimeType: 'video/webm' });
-    const chunks = [];
-
-    recorder.ondataavailable = e => chunks.push(e.data);
-    recorder.onstop = e => {
-      const blob = new Blob(chunks, { type: 'video/webm' });
-      const url = URL.createObjectURL(blob);
-
-      // videoタグに読み込んで自動ループ再生
-      video.src = url;
-      video.play();
-    };
-
-    recorder.start();
-
-    let x = canvas.width;
-    const speed = 2; // 横スクロール速度
-    const text = marquee.textContent;
-    ctx.font = '48px sans-serif';
-    const textWidth = ctx.measureText(text).width;
-
-    function draw() {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.fillStyle = 'black';
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-      ctx.fillStyle = 'white';
-      ctx.font = '48px sans-serif';
-      ctx.fillText(text, x, 70);
-      x -= speed;
-    }
-
-    function loop() {
-      draw();
-      if (x < -textWidth) {
-        recorder.stop();
-        return;
-      }
-      requestAnimationFrame(loop);
-    }
-    loop();
-  });
-  </script>
-
+    <!-- Canvasで動画生成 -->
+    <canvas id="canvas" width="800" height="100" style="display:none;"></canvas>
+    <div id="marquee"> ここにお知らせや注意事項を書いてテロップとして流すことができます。 </div>
+    <button id="startBtn">テロップ作成</button>
+    <button id="pipBtn">PiP</button>
+    <script src="script.js"></script>
   </body>
 </html>
