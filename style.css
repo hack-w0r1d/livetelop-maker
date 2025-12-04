@@ -120,3 +120,8 @@ footer {
     margin-right: 20%;
     text-align: right;
 }
+
+#x-logo {
+    width: 24px;
+    margin: 10px 10px 0 10px;
+}
