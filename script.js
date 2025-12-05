@@ -12,7 +12,15 @@ bgPicker.addEventListener('input', () => {
     telopPreview.style.backgroundColor = bgPicker.value;
 });
 
-textPicker.addEventListener('input', () => {
+bgPicker.addEventListener('input', () => {
+    telopPreview.style.backgroundColor = bgPicker.value;
+});
+
+textPicker.addEventListener('change', () => {
+    telopPreview.style.color = textPicker.value;
+});
+
+textPicker.addEventListener('change', () => {
     telopPreview.style.color = textPicker.value;
 });
 
