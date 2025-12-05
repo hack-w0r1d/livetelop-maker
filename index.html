@@ -26,6 +26,16 @@
       <!-- Canvasで動画生成 -->
       <canvas id="canvas" width="800" height="100"></canvas>
       <div id="telopPreview" class="guide">テロップ作成ボタンを押すとこちらの文章がテロップとして作成されます。</div>
+      <div class="color-picker">
+        <label>
+          背景色　
+          <input type="color" id="bgColorPicker" value="#000000">
+        </label>
+        <label>
+          文字色　
+          <input type="color" id="textColorPicker" value="#ffffff">
+        </label>
+      </div>
       <button id="createTelopBtn">テロップ作成</button>
       <!-- ここに動画を表示 -->
       <video id="pipVideo" autoplay muted loop playsinline></video>

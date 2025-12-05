@@ -42,6 +42,7 @@ input {
 }
 
 button {
+    width: 50%;
     color: white;
     border: none;
     border-radius: 8px;
@@ -83,6 +84,20 @@ canvas {
     background-color: #e6003e;
 }
 
+.color-picker {
+    margin-top: 20px;
+    display: flex;
+    justify-content: space-around;
+}
+
+.color-picker label {
+    display: flex;
+}
+
+#telopPreview {
+    margin-bottom: 10px;
+}
+
 #createTelopBtn {
     background-color: #2ecc71;
 }
@@ -105,11 +120,6 @@ canvas {
 
 #pipBtn:active {
     background-color: #0b5ed7;
-}
-
-.explain {
-    width: 90%;
-    margin: 10px auto 15px;
 }
 
 footer {
