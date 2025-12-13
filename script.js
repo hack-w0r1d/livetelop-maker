@@ -9,6 +9,7 @@ const bgPicker = document.getElementById('bgColorPicker');
 const textPicker = document.getElementById('textColorPicker');
 const updateBgColor = () => telopPreview.style.backgroundColor = bgPicker.value;
 const updateTextColor = () => telopPreview.style.color = textPicker.value;
+const isAndroid = /Android/i.test(navigator.userAgent);
 
 bgPicker.addEventListener('input', updateBgColor);
 bgPicker.addEventListener('change', updateBgColor);
@@ -80,3 +81,5 @@ createTelopBtn.addEventListener('click', () => {
     }
     loop();
 });
+
+video.controls = isAndroid;
