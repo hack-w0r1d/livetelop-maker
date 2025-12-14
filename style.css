@@ -57,6 +57,27 @@ h1 {
     text-align: left;
 }
 
+.preset-btn {
+    width: 85%;
+    color: orange;
+    background: transparent;
+    border: none;
+    font-size: 14px;
+    cursor: pointer;
+    margin: 0 0 5px 0;
+    padding: 0;
+    text-align: left;
+}
+
+.preset-btn:active {
+    opacity: 0.6;
+}
+
+#deletePresetBtn {
+    color: red;
+    display: none;
+}
+
 input {
     font-size: 18px;
     margin-bottom: 10px;
@@ -137,6 +158,10 @@ canvas {
 
 #createTelopBtn:active {
     background-color: #219150;
+}
+
+#savePresetBtn {
+    display: none;
 }
 
 #pipBtn {

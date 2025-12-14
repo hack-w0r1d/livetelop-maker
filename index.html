@@ -27,7 +27,7 @@
     <meta name="twitter:title" content="LiveTelop Maker">
     <meta name="twitter:description" content="ライブ配信用テロップを誰でも簡単に作成できるWebツール">
     <meta name="twitter:image" content="https://hack-w0r1d.github.io/livetelop-maker/images/x-card.png">
-    <link rel="stylesheet" href="style.css?v=dev3">
+    <link rel="stylesheet" href="style.css">
     <link rel="apple-touch-icon" sizes="192x192" href="apple-touch-icon.png">
   </head>
   <body>
@@ -36,18 +36,20 @@
       <p>for Streamers（iOS推奨）</p>
       <div class="header-telop">
         <span>
-          スマホやタブレットで配信する配信者向けのオリジナルテロップを作成できるサービスです。
+          スマホやタブレットで配信する配信者向けのオリジナルテロップを作成できるツールです。
         </span>
       </div>
     </header>
     <div id="main-container">
       <div class="guide">テロップにしたい文章を入力してください。</div>
+      <button id="applyPresetBtn" class="preset-btn">☆プリセットを適用する</button>
+      <button id="deletePresetBtn" class="preset-btn">×プリセットを削除する</button>
       <input type="text" id="telopInput" placeholder="テロップにしたい文章を入力">
       <button id="updateTelopBtn">テロップ更新</button>
       <div class="guide">【現在のテロップ】</div>
       <!-- Canvasで動画生成 -->
       <canvas id="canvas" width="800" height="100"></canvas>
-      <div id="telopPreview" class="guide">テロップ作成ボタンを押すとこちらの文章がテロップとして作成されます。</div>
+      <div id="telopPreview" class="guide">テロップ作成ボタンを押すとこちらの文章がテロップとして作成されます。（サンプル）</div>
       <div class="color-picker">
         <label>
           背景色　
@@ -61,6 +63,7 @@
       <button id="createTelopBtn">テロップ作成</button>
       <!-- ここに動画を表示 -->
       <video id="pipVideo" loop playsinline></video>
+      <button id="savePresetBtn" class="preset-btn">☆現在の設定を保存する（1つまで）<br>※すでにあるプリセットは上書きされます</button>
       <div class="guide">
         ※テロップの長さや通信状況などにより作成に時間がかかることがあります。（数十秒ほど）<br>
         ※テロップがスムーズに流れない場合は再度テロップを作成してください。
@@ -75,6 +78,6 @@
       </a>
       <p>ご質問・ご要望・お問い合わせなどはDMまで</p>
     </footer>
-    <script src="script.js?v=dev3"></script>
+    <script src="script.js"></script>
   </body>
 </html>
