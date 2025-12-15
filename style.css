@@ -73,9 +73,14 @@ h1 {
     opacity: 0.6;
 }
 
+#applyPresetBtn,
+#savePresetBtn,
+#deletePresetBtn {
+    display: none;
+}
+
 #deletePresetBtn {
     color: red;
-    display: none;
 }
 
 input {
@@ -158,10 +163,6 @@ canvas {
 
 #createTelopBtn:active {
     background-color: #219150;
-}
-
-#savePresetBtn {
-    display: none;
 }
 
 #pipBtn {
