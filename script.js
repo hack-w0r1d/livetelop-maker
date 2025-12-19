@@ -30,7 +30,7 @@ const premiumKeyModal = document.getElementById("premiumKeyModal");
 const premiumKeyInput = document.getElementById("premiumKeyInput");
 const premiumKeySubmit = document.getElementById("premiumKeySubmit");
 const premiumKeyCancel = document.getElementById("premiumKeyCancel");
-const updateBgColor = () => preview.style.backgroundColor = bgColor.value;
+const previewWrapper = document.getElementById("previewWrapper")
 const updateTextColor = () => {
     if (gradientType === "none") {
         preview.style.color = textColor.value;
@@ -61,9 +61,11 @@ function markDirty() {
     updateUI();
 }
 
-bgColor.addEventListener('input', updateBgColor);
+bgColor.addEventListener('input', () => {
+    updatePreviewTextStyle();
+});
 bgColor.addEventListener('change', () => {
-    updateBgColor();
+    updatePreviewTextStyle();
     markDirty();
 });
 
@@ -221,7 +223,7 @@ function applySavedPreset() {
 
     // preview反映
     preview.textContent = preset.text;
-    preview.style.backgroundColor = preset.bgColor;
+    previewWrapper.style.backgroundColor = preset.bgColor;
 
     // 単色 or グラデーション 適用
     updatePreviewTextStyle();
@@ -248,7 +250,7 @@ function deletePreset() {
     bgColor.value = defaultBgColor;
     textColor.value = defaultTextColor;
 
-    preview.style.backgroundColor = defaultBgColor;
+    previewWrapper.style.backgroundColor = defaultBgColor;
     preview.style.color = defaultTextColor;
 
     gradientType = "none";
@@ -355,11 +357,13 @@ gradientColorEnd.addEventListener("input", () => {
 });
 
 function updatePreviewTextStyle() {
+
+    previewWrapper.style.backgroundColor = bgColor.value;
+
     if (gradientType === "none") {
         preview.style.color = textColor.value;
         preview.style.backgroundImage = "none";
         preview.style.removeProperty("-webkit-background-clip");
-        preview.style.backgroundClip = "initial";
         return;
     }
 
@@ -367,8 +371,9 @@ function updatePreviewTextStyle() {
 
     preview.style.backgroundImage = `linear-gradient(${direction}, ${gradientColor1}, ${gradientColor2})`;
 
-    preview.style.setProperty("-webkit-background-clip", "text");
     preview.style.backgroundClip = "text";
+
+    preview.style.setProperty("-webkit-background-clip", "text");
     preview.style.color = "transparent";
 }
 

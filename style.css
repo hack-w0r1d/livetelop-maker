@@ -192,7 +192,8 @@ canvas {
 
 #telopPreview {
     font-size: 18px;
-    margin-bottom: 10px;
+    display: block;
+    text-align: left;
 }
 
 .color-picker {
@@ -457,4 +458,10 @@ footer {
     background: linear-gradient(135deg, #4fc3ff, #ff4fd8);
     color: white;
     font-weight: bold;
+}
+
+#previewWrapper {
+    width: 85%;
+    background: #000;
+    margin: 10px auto 10px;
 }
