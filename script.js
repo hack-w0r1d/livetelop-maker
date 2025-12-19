@@ -31,11 +31,6 @@ const premiumKeyInput = document.getElementById("premiumKeyInput");
 const premiumKeySubmit = document.getElementById("premiumKeySubmit");
 const premiumKeyCancel = document.getElementById("premiumKeyCancel");
 const previewWrapper = document.getElementById("previewWrapper")
-const updateTextColor = () => {
-    if (gradientType === "none") {
-        preview.style.color = textColor.value;
-    }
-}
 
 window.addEventListener("DOMContentLoaded", () => {
     const checked = document.querySelector('input[name="gradientType"]:checked');
@@ -61,21 +56,18 @@ function markDirty() {
     updateUI();
 }
 
-bgColor.addEventListener('input', () => {
-    updatePreviewTextStyle();
-});
+bgColor.addEventListener('input', updatePreviewTextStyle);
 bgColor.addEventListener('change', () => {
     updatePreviewTextStyle();
     markDirty();
 });
 
 textColor.addEventListener('input', () => {
-    updateTextColor();
     updatePreviewTextStyle();
 });
 
 textColor.addEventListener('change', () => {
-    updateTextColor();
+    updatePreviewTextStyle();
     markDirty();
 });
 
@@ -114,12 +106,12 @@ createTelopBtn.addEventListener('click', () => {
 
     recorder.ondataavailable = e => chunks.push(e.data);
     recorder.onstop = e => {
-    const blob = new Blob(chunks, { type: 'video/webm' });
+        const blob = new Blob(chunks, { type: 'video/webm' });
 
-    // videoタグに読み込んで自動ループ再生
-    if (video.src) URL.revokeObjectURL(video.src);
-    video.src = URL.createObjectURL(blob);
-    video.play();
+        // videoタグに読み込んで自動ループ再生
+        if (video.src) URL.revokeObjectURL(video.src);
+        video.src = URL.createObjectURL(blob);
+        video.play();
     };
 
     recorder.start();
@@ -127,35 +119,34 @@ createTelopBtn.addEventListener('click', () => {
     let x = canvas.width;
     const speed = 2; // 横スクロール速度
     const text = telopText;
-    ctx.font = '48px sans-serif';
     const textWidth = ctx.measureText(telopText).width;
 
     function draw() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.fillStyle = bgColor.value;
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-    ctx.fillStyle = textColor.value;
-    setTextStyle(ctx, {
-        gradientType,
-        text,
-        x,
-        y: 70,
-        color1: gradientColor1,
-        color2: gradientColor2,
-        textColor: textColor.value
-    });
+        ctx.font = '48px sans-serif';
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = bgColor.value;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        setTextStyle(ctx, {
+            gradientType,
+            text,
+            x,
+            y: 70,
+            color1: gradientColor1,
+            color2: gradientColor2,
+            textColor: textColor.value
+        });
 
-    ctx.fillText(text, x, 70);
-    x -= speed;
+        ctx.fillText(text, x, 70);
+        x -= speed;
     }
 
     function loop() {
-    draw();
-    if (x < -textWidth) {
-        recorder.stop();
-        return;
-    }
-    requestAnimationFrame(loop);
+        draw();
+        if (x < -textWidth) {
+            recorder.stop();
+            return;
+        }
+        requestAnimationFrame(loop);
     }
     loop();
 });
@@ -263,6 +254,7 @@ function deletePreset() {
 
     updatePreviewTextStyle();
     updateGradientUI();
+    updateTextColorUI();
 
     document.getElementById("telopInput").value = "";
     preview.textContent = "テロップ作成ボタンを押すとこちらの文章がテロップとして作成されます。（サンプル）";
