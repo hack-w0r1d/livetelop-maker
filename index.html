@@ -31,12 +31,17 @@
     <link rel="apple-touch-icon" sizes="192x192" href="apple-touch-icon.png">
   </head>
   <body>
+    <!-- プレミアム機能解放時（一度のみ表示） -->
+    <div id="premiumToast" class="premium-toast hidden">
+      プレミアム機能を<br>解放しました 🎉
+    </div>
+    <div id="premiumOverlay" class="premium-overlay hidden"></div>
     <header>
       <h1>LiveTelop Maker</h1>
       <p>for Streamers（iOS推奨）</p>
       <div class="header-telop">
         <span>
-          スマホやタブレットで配信する配信者向けのオリジナルテロップを作成できるツールです。
+          スマホやタブレットで配信する配信者向けのオリジナルテロップ作成ツールです。
         </span>
       </div>
     </header>
@@ -55,16 +60,59 @@
           背景色　
           <input type="color" id="bgColorPicker" value="#000000">
         </label>
-        <label>
+        <label class="text-color-wrapper">
           文字色　
           <input type="color" id="textColorPicker" value="#ffffff">
         </label>
+      </div>
+      <!-- プレミアム機能 -->
+      <div class="gradient-section premium">
+        <!-- 常に表示 -->
+        <h3 class="gradient-title">
+          グラデーション文字
+          <span class="badge premium-badge">
+            <span>Premium</span>
+          </span>
+        </h3>
+        <!-- 未解放時に表示 -->
+        <div class="premium-locked" id="premiumLocked">
+          <button id="unlockBtn" class="unlock-btn">
+            機能を解放する
+          </button>
+        </div>
+        <!-- 解放後に表示 -->
+        <div class="premium-content hidden" id="premiumContent">
+          <div class="gradient-direction">
+            <label>
+              <input type="radio" name="gradientType" value="none" checked>
+              なし
+            </label>
+            <label>
+              <input type="radio" name="gradientType" value="horizontal">
+              横
+            </label>
+            <label>
+              <input type="radio" name="gradientType" value="vertical">
+              縦
+            </label>
+          </div>
+          <div class="gradient-colors">
+            <label>
+              開始色
+              <input type="color" id="gradientColorStart" value="#ff00ff">
+            </label>
+            <label>
+              終了色
+              <input type="color" id="gradientColorEnd" value="#00ffff">
+            </label>
+          </div>
+        </div>
       </div>
       <button id="createTelopBtn">テロップ作成</button>
       <!-- ここに動画を表示 -->
       <video id="pipVideo" loop playsinline></video>
       <button id="savePresetBtn" class="preset-btn">☆現在の設定を保存する（1つまで）<br>※すでにあるプリセットは上書きされます</button>
-      <div class="guide">
+      <div class="help-text">
         ※テロップの長さや通信状況などにより作成に時間がかかることがあります。（数十秒ほど）<br>
         ※テロップがスムーズに流れない場合は再度テロップを作成してください。
       </div>
@@ -78,6 +126,21 @@
       </a>
       <p>ご質問・ご要望・お問い合わせなどはDMまで</p>
     </footer>
+    <div id="premiumKeyModal" class="hidden">
+      <div class="premium-key-modal">
+        <div class="premium-key-box">
+          <h3>🪄 解放キーを入力してください</h3>
+          <p class="premium-key-note">
+            ※ 詳細は <strong>Xの固定ポスト</strong> のツリーに記載しています
+          </p>
+          <input type="text" id="premiumKeyInput" placeholder="解放キーを入力">
+          <div class="premium-key-actions">
+            <button id="premiumKeyCancel" class="secondary">キャンセル</button>
+            <button id="premiumKeySubmit" class="primary">解放する</button>
+          </div>
+        </div>
+      </div>
+    </div>
     <script src="script.js"></script>
   </body>
 </html>

@@ -20,6 +20,58 @@ h1 {
     margin-bottom: 18px;
 }
 
+.hidden {
+    display: none;
+}
+
+.premium-toast {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0.9);
+    opacity: 0;
+    background: linear-gradient(135deg, #4facfe, #ff5fd8);
+    color: white;
+    padding: 18px 26px;
+    border-radius: 16px;
+    font-weight: bold;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
+    transition:
+      opacity 0.4s ease,
+      transform 0.4s ease;
+    z-index: 9999;
+    text-align: center;
+}
+
+.premium-toast.show {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+}
+
+.premium-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.45);
+    opacity: 0;
+    transition: opacity 0.45s ease;
+    z-index: 9998;
+}
+
+.premium-overlay.show {
+    opacity: 1;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translate(-50%, 10px);
+    }
+    to {
+        opacity: 1;
+        transform: translate(-50%, 0);
+    }
+}
+
 .header-telop {
     overflow: hidden;
     white-space: nowrap;
@@ -138,6 +190,11 @@ canvas {
     background-color: #e6003e;
 }
 
+#telopPreview {
+    font-size: 18px;
+    margin-bottom: 10px;
+}
+
 .color-picker {
     margin-top: 20px;
     display: flex;
@@ -148,9 +205,139 @@ canvas {
     display: flex;
 }
 
-#telopPreview {
-    font-size: 18px;
-    margin-bottom: 10px;
+.gradient-section {
+    width: 85%;
+    margin: 15px auto 5px;
+    padding: 15px 15px 7px 15px;
+    text-align: left;
+    border: 1px solid #333;
+}
+
+.gradient-section h3 {
+    margin: 0 0 10px;
+    font-size: 16px;
+}
+
+.gradient-title {
+    background: linear-gradient(
+        to right,
+        #ff4fd8,
+        #6cf2ff
+    );
+
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+
+    display: flex;
+    align-items: center;
+}
+
+.badge {
+    background: linear-gradient(180deg, #0b0e13, #05070a);
+    border-radius: 6px;
+    box-shadow:
+    0 0 0 1px rgba(0, 0, 0, 0.08),
+    0 2px 6px rgba(0, 0, 0, 0.6),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.04);
+    letter-spacing: 0.05em;
+    display: inline-block;
+    font-size: 12px;
+    margin-left: 10px;
+    padding: 2px 6px;
+}
+
+.badge span {
+    background: linear-gradient(
+        90deg,
+        #4fc3ff,
+        #ff4fd8
+    );
+    text-shadow: 0 0 6px rgba(255, 79, 216, 0.15);
+
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+}
+
+@keyframes premiumBadgeGlowTwice {
+    0% {
+        box-shadow:
+          0 0 0 1px rgba(0, 0, 0, 0.08),
+          0 2px 6px rgba(0, 0, 0, 0.6),
+          inset 0 0 0 1px rgba(255, 255, 255, 0.04);
+    }
+    15% {
+        box-shadow:
+        0 0 14px rgba(255, 79, 216, 0.55),
+        0 0 28px rgba(79, 195, 255, 0.35),
+        inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+    }
+    30% {
+        box-shadow:
+        0 0 0 rgba(0, 0, 0, 0),
+        0 2px 6px rgba(0, 0, 0, 0.6),
+        inset 0 0 0 1px rgba(255, 255, 255, 0.04);
+    }
+    55% {
+        box-shadow:
+        0 0 18px rgba(79, 195, 255, 0.6),
+        0 0 32px rgba(255, 79, 216, 0.4),
+        inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+    }
+    70% {
+        box-shadow:
+        0 0 0 rgba(0, 0, 0, 0),
+        0 2px 6px rgba(0, 0, 0, 0.6),
+        inset 0 0 0 1px rgba(255, 255, 255, 0.04);
+    }
+    100% {
+        box-shadow:
+          0 0 0 1px rgba(0, 0, 0, 0.08),
+          0 2px 6px rgba(0, 0, 0, 0.6),
+          inset 0 0 0 1px rgba(255, 255, 255, 0.04);
+    }
+}
+
+.badge.glow {
+    animation: premiumBadgeGlowTwice 2.2s ease;
+}
+
+.premium-locked {
+    text-align: center;
+}
+
+.unlock-btn {
+    background: linear-gradient(135deg, #ff5fd8, #6aa9ff);
+    border: none;
+    color: white;
+    border-radius: 8px;
+    cursor: pointer;
+    margin: 5px auto 13px;
+}
+
+.gradient-direction {
+    margin: 15px 0 15px 10px;
+}
+
+.gradient-direction label {
+    margin-right: 12px;
+}
+
+.gradient-colors {
+    margin: 5px 0 10px;
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+}
+
+.gradient-colors label {
+    display: flex;
+    align-items: center;
+}
+
+.gradient-colors label input {
+    margin: auto 10px;
 }
 
 #createTelopBtn {
@@ -177,6 +364,15 @@ canvas {
     background-color: #0b5ed7;
 }
 
+.help-text {
+    width: 85%;
+    margin: 10px auto 10px;
+    text-align: left;
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 15px;
+    letter-spacing: 0.03em;
+}
+
 footer {
     width: 100%;
     margin: 25px 0 50px 0;
@@ -188,4 +384,77 @@ footer {
 #x-logo {
     width: 24px;
     margin: 10px;
+}
+
+.premium-key-modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.55);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+}
+
+.premium-key-modal.is-hidden {
+    display: none;
+}
+
+.premium-key-box {
+    background: linear-gradient(180deg, #0b0e13, #05070a);
+    border-radius: 14px;
+    padding: 20px 18px;
+    width: 90%;
+    max-width: 320px;
+    box-shadow: 0 30px 60px rgba(0, 0, 0, 0.6);
+    color: white;
+}
+
+.premium-key-box h3 {
+    margin: 0 0 6px;
+    font-size: 15px;
+}
+
+.premium-key-note {
+    font-size: 11px;
+    color: rgba(255, 255, 255, 0.55);
+    margin-bottom: 12px;
+}
+
+.premium-key-box input {
+    width: 100%;
+    padding: 8px 10px;
+    border-radius: 8px;
+    border: none;
+    background: #0e1118;
+    color: white;
+    margin-bottom: 14px;
+}
+
+.premium-key-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+}
+
+.premium-key-actions button {
+    padding: 6px 12px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+}
+
+.premium-key-actions .secondary {
+    background: #1a1e26;
+    color: rgba(255, 255, 255, 0.65);
+    font-weight: normal;
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+    transition: background 0.15 ease, color 0.15s ease;
+    opacity: 0.9;
+}
+
+.premium-key-actions .primary {
+    background: linear-gradient(135deg, #4fc3ff, #ff4fd8);
+    color: white;
+    font-weight: bold;
 }
