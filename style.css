@@ -20,6 +20,42 @@ h1 {
     margin-bottom: 18px;
 }
 
+input {
+    font-size: 18px;
+    margin-bottom: 10px;
+}
+
+button {
+    width: 50%;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    margin: 25px auto 15px;
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+button:hover {
+    transform: translateY(-2px);
+}
+
+button:active {
+    transform: translateY(1px);
+}
+
+video {
+    width: 90%;
+    max-width: 800px;
+    height: 100px;
+    margin: auto;
+}
+
+canvas {
+    display: none;
+}
+
 .hidden {
     display: none;
 }
@@ -135,46 +171,39 @@ h1 {
     color: red;
 }
 
-input {
-    font-size: 18px;
-    margin-bottom: 10px;
+.telop-input-wrapper {
+    position: relative;
+    width: 87%;
+    height: 35px;
+    max-width: 777px;
+    margin: 20px auto 10px;
+    display: flex;
+    align-items: center;
 }
 
 #telopInput {
-    width: 85%;
-    height: 30px;
-    max-width: 777px;
-    margin-top: 10px;
+    width: 100%;
+    height: 100%;
+    padding-right: 32px;
+    box-sizing: border-box;
 }
 
-button {
-    width: 50%;
-    color: white;
-    border: none;
-    border-radius: 8px;
-    margin: 25px auto 15px;
-    padding: 10px 20px;
-    font-size: 16px;
-    cursor: pointer;
-    transition: 0.2s;
-}
-
-button:hover {
-    transform: translateY(-2px);
-}
-
-button:active {
-    transform: translateY(1px);
-}
-
-video {
-    width: 90%;
-    max-width: 800px;
-    height: 100px;
+#clearTelopBtn {
+    position: absolute;
+    right: 6px;
+    top: 37%;
+    transform: translateY(-50%);
+    width: 20px;
+    height: 20px;
     margin: auto;
-}
-
-canvas {
+    padding: 0;
+    border-radius: 50%;
+    border: none;
+    background: rgba(0, 0, 0, 0.3);
+    color: #fff;
+    font-size: 14px;
+    line-height: 20px;
+    cursor: pointer;
     display: none;
 }
 
@@ -188,6 +217,12 @@ canvas {
 
 #updateTelopBtn:active {
     background-color: #e6003e;
+}
+
+#previewWrapper {
+    width: 85%;
+    background: #000;
+    margin: 10px auto 10px;
 }
 
 #telopPreview {
@@ -370,7 +405,7 @@ canvas {
     margin: 10px auto 10px;
     text-align: left;
     color: rgba(255, 255, 255, 0.5);
-    font-size: 15px;
+    font-size: 14px;
     letter-spacing: 0.03em;
 }
 
@@ -458,10 +493,4 @@ footer {
     background: linear-gradient(135deg, #4fc3ff, #ff4fd8);
     color: white;
     font-weight: bold;
-}
-
-#previewWrapper {
-    width: 85%;
-    background: #000;
-    margin: 10px auto 10px;
 }

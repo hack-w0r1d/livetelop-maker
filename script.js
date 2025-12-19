@@ -5,6 +5,8 @@ const video = document.getElementById('pipVideo');
 const pipBtn = document.getElementById('pipBtn');
 const preview = document.getElementById("telopPreview");
 let telopText = "テロップ作成ボタンを押すとこちらの文章がテロップとして作成されます。（サンプル）";
+const telopInput = document.getElementById("telopInput");
+const clearTelopBtn = document.getElementById("clearTelopBtn");
 const bgColor = document.getElementById('bgColorPicker');
 const textColor = document.getElementById('textColorPicker');
 const defaultBgColor = "#000000";
@@ -461,3 +463,12 @@ function glowPremiumBadge() {
     void premiumBadge.offsetWidth;
     premiumBadge.classList.add("glow");
 }
+
+telopInput.addEventListener("input", () => {
+    clearTelopBtn.style.display = telopInput.value ? "block" : "none";
+});
+
+clearTelopBtn.addEventListener("click", () => {
+    telopInput.value = "";
+    clearTelopBtn.style.display = "none";
+});
