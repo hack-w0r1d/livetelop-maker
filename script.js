@@ -165,6 +165,10 @@ function hasPreset() {
 }
 
 function saveCurrentPreset() {
+
+    const confirmed = confirm("現在の設定を保存しますか？");
+    if (!confirmed) return;
+
     const text = document.getElementById("telopInput").value.trim();
 
     if (!text) {
