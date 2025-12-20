@@ -136,10 +136,10 @@ createTelopBtn.addEventListener('click', () => {
     let x = canvas.width;
     const speed = 2; // 横スクロール速度
     const text = telopText;
+    ctx.font = '48px sans-serif';
     const textWidth = ctx.measureText(telopText).width;
 
     function draw() {
-        ctx.font = '48px sans-serif';
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         ctx.fillStyle = bgColor.value;
         ctx.fillRect(0, 0, canvas.width, canvas.height);
