@@ -147,6 +147,27 @@ canvas {
     text-align: center;
 }
 
+.restore-notice {
+    width: 85%;
+    margin: 0 auto 8px;
+    padding: 8px 12px;
+    border-radius: 6px;
+    background: rgba(255, 165, 0, 0.12);
+    color: #ff8c00;
+    font-size: 13px;
+    text-align: left;
+    opacity: 1;
+    transition: opacity 1.2s ease;
+}
+
+.restore-notice.fade-out {
+    opacity: 0;
+}
+
+.restore-notice.hidden {
+    display: none;
+}
+
 .guide {
     width: 85%;
     margin: 10px auto 10px;

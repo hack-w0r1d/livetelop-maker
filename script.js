@@ -572,6 +572,8 @@ function restoreCurrentTelopState() {
     telopText = state.text;
 
     updateUI();
+
+    showRestoreNotice(state.updatedAt);
 }
 
 function requestAutoSave() {
@@ -583,4 +585,39 @@ function requestAutoSave() {
         saveCurrentTelopState();
         autoSaveTimer = null;
     }, 300);
+}
+
+// x分前、x時間前を作る関数
+function formatTimeAgo(timestamp) {
+    const diffMs = Date.now() - timestamp;
+    const diffMin = Math.floor(diffMs / 60000);
+
+    if (diffMin < 1) return "現在";
+    if (diffMin < 60) return `${diffMin}分前`;
+
+    const diffHour = Math.floor(diffMin / 60);
+    if (diffHour < 24) return `${diffHour}時間前`;
+
+    return "前回";
+}
+
+// 自動復元通知を表示
+function showRestoreNotice(updatedAt) {
+    const notice = document.getElementById("restoreNotice");
+    if (!notice) return;
+
+    const timeText = formatTimeAgo(updatedAt);
+
+    notice.textContent = `${timeText}の内容を自動復元しました`;
+    notice.classList.remove("hidden", "fade-out");
+
+    // 少し表示してからフェードアウト
+    setTimeout(() => {
+        notice.classList.add("fade-out");
+    }, 2500);
+
+    // 完全に消す
+    setTimeout(() => {
+        notice.classList.add("hidden");
+    }, 3800);
 }
