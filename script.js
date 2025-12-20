@@ -32,18 +32,24 @@ const premiumKeyModal = document.getElementById("premiumKeyModal");
 const premiumKeyInput = document.getElementById("premiumKeyInput");
 const premiumKeySubmit = document.getElementById("premiumKeySubmit");
 const premiumKeyCancel = document.getElementById("premiumKeyCancel");
-const previewWrapper = document.getElementById("previewWrapper")
+const previewWrapper = document.getElementById("previewWrapper");
+let autoSaveTimer = null;
 
 window.addEventListener("DOMContentLoaded", () => {
+
+    // 24時間以内の更新テロップ自動復元
+    restoreCurrentTelopState();
+
     const checked = document.querySelector('input[name="gradientType"]:checked');
     gradientType = checked ? checked.value : "none";
 
+    // プレミアムユーザー判定
     const isPremium = localStorage.getItem("premium");
-
     if (isPremium === "true") {
         showPremiumContent();
     }
 
+    // UI反映
     updateUI();
     updatePreviewTextStyle();
     updateGradientUI();
@@ -58,7 +64,11 @@ function markDirty() {
     updateUI();
 }
 
-bgColor.addEventListener('input', updatePreviewTextStyle);
+bgColor.addEventListener('input', () => {
+    updatePreviewTextStyle();
+    requestAutoSave();
+});
+
 bgColor.addEventListener('change', () => {
     updatePreviewTextStyle();
     markDirty();
@@ -66,6 +76,7 @@ bgColor.addEventListener('change', () => {
 
 textColor.addEventListener('input', () => {
     updatePreviewTextStyle();
+    requestAutoSave();
 });
 
 textColor.addEventListener('change', () => {
@@ -88,7 +99,7 @@ pipBtn.addEventListener('click', async () => {
 });
 
 document.getElementById("updateTelopBtn").addEventListener('click', () => {
-    const text = document.getElementById("telopInput").value.trim();
+    const text = telopInput.value.trim();
     if (!text) return;
 
     telopText = text;
@@ -97,6 +108,8 @@ document.getElementById("updateTelopBtn").addEventListener('click', () => {
 
     isDirty = true;
     isPresetApplied = false;
+
+    saveCurrentTelopState();
 
     updateUI();
 });
@@ -115,6 +128,8 @@ createTelopBtn.addEventListener('click', () => {
         video.src = URL.createObjectURL(blob);
         video.play();
     };
+
+    saveCurrentTelopState();
 
     recorder.start();
 
@@ -169,7 +184,7 @@ function saveCurrentPreset() {
     const confirmed = confirm("現在の設定を保存しますか？");
     if (!confirmed) return;
 
-    const text = document.getElementById("telopInput").value.trim();
+    const text = telopInput.value.trim();
 
     if (!text) {
         alert("テロップの文字が空のため、プリセットを保存できません。");
@@ -202,7 +217,7 @@ function applySavedPreset() {
     const preset = presets[0];
 
     // inputに反映
-    document.getElementById("telopInput").value = preset.text;
+    telopInput.value = preset.text;
     bgColor.value = preset.bgColor;
     textColor.value = preset.textColor;
 
@@ -262,7 +277,7 @@ function deletePreset() {
     updateGradientUI();
     updateTextColorUI();
 
-    document.getElementById("telopInput").value = "";
+    telopInput.value = "";
     preview.textContent = "テロップ作成ボタンを押すとこちらの文章がテロップとして作成されます。（サンプル）";
 
     updateUI();
@@ -339,6 +354,8 @@ document.querySelectorAll('input[name="gradientType"]').forEach(radio => {
         updatePreviewTextStyle();
         updateGradientUI();
         updateTextColorUI();
+
+        requestAutoSave();
     });
 });
 
@@ -346,12 +363,14 @@ gradientColorStart.addEventListener("input", () => {
     gradientColor1 = gradientColorStart.value;
     updatePreviewTextStyle();
     markDirty();
+    requestAutoSave();
 });
 
 gradientColorEnd.addEventListener("input", () => {
     gradientColor2 = gradientColorEnd.value;
     updatePreviewTextStyle();
     markDirty();
+    requestAutoSave();
 });
 
 function updatePreviewTextStyle() {
@@ -468,11 +487,100 @@ function glowPremiumBadge() {
     premiumBadge.classList.add("glow");
 }
 
+function updateClearTelopBtnVisibility() {
+    clearTelopBtn.style.display = telopInput.value.trim() ? "block" : "none";
+}
+
 telopInput.addEventListener("input", () => {
-    clearTelopBtn.style.display = telopInput.value ? "block" : "none";
+    updateClearTelopBtnVisibility();
+    requestAutoSave();
 });
 
 clearTelopBtn.addEventListener("click", () => {
+    // 意図しない消去対策のため telopText や自動保存は更新しない
     telopInput.value = "";
-    clearTelopBtn.style.display = "none";
+    updateClearTelopBtnVisibility();
 });
+
+// 現在のテロップ設定を自動保存
+function saveCurrentTelopState() {
+
+    const state = {
+        gradientType,
+        text: telopText,
+        bgColor: bgColor.value,
+        textColor: textColor.value,
+        gradientColor1,
+        gradientColor2,
+        updatedAt: Date.now()
+    }
+
+    localStorage.setItem("livetelop:current", JSON.stringify(state));
+}
+
+// 自動保存されたテロップ設定を復元（24時間以内のみ）
+function restoreCurrentTelopState() {
+    const saved = localStorage.getItem("livetelop:current");
+    if (!saved) return;
+
+    let state;
+
+    try {
+        state = JSON.parse(saved);
+        if (!state || typeof state.text !== "string") return;
+    } catch {
+        localStorage.removeItem("livetelop:current");
+        return;
+    }
+
+    // 24時間以内チェック
+    const ONE_DAY = 24 * 60 * 60 * 1000;
+    if (!state.updatedAt || Date.now() - state.updatedAt > ONE_DAY) {
+        localStorage.removeItem("livetelop:current");
+        return;
+    }
+
+    // inputに反映
+    telopInput.value = state.text;
+    bgColor.value = state.bgColor || defaultBgColor;
+    textColor.value = state.textColor || defaultTextColor;
+
+    updateClearTelopBtnVisibility();
+
+    gradientType = state.gradientType || "none";
+    gradientColor1 = state.gradientColor1 || "#ff00ff";
+    gradientColor2 = state.gradientColor2 || "#00ffff";
+
+    gradientColorStart.value = gradientColor1;
+    gradientColorEnd.value = gradientColor2;
+
+    // radio同期
+    document.querySelectorAll('input[name="gradientType"]').forEach(radio => {
+        radio.checked = radio.value === gradientType;
+    })
+
+    // preview反映
+    preview.textContent = state.text;
+    previewWrapper.style.backgroundColor = bgColor.value;
+
+    // 単色 or グラデーション 適用
+    updatePreviewTextStyle();
+    updateGradientUI();
+    updateTextColorUI();
+
+    // 内部状態更新
+    telopText = state.text;
+
+    updateUI();
+}
+
+function requestAutoSave() {
+    if (autoSaveTimer) {
+        clearTimeout(autoSaveTimer);
+    }
+
+    autoSaveTimer = setTimeout(() => {
+        saveCurrentTelopState();
+        autoSaveTimer = null;
+    }, 300);
+}
