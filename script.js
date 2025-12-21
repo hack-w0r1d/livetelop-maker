@@ -60,13 +60,25 @@ window.addEventListener("DOMContentLoaded", () => {
     const headerContainerWidth = headerTelop.parentElement.offsetWidth;
     let x = headerContainerWidth;
     const speed = 1;
+    let loopCount = 0;
+    const maxLoop = 2;
 
     function animateTelop() {
         headerTelop.style.transform = `translateX(${x}px)`;
         x -= speed;
 
         if (x < -headerTelop.offsetWidth) {
-            x = headerContainerWidth;
+            loopCount++;
+            if (loopCount < maxLoop) {
+                x = headerContainerWidth;
+            } else {
+                const hour = new Date().getHours();
+                if (hour < 12) headerTelop.textContent = "おはようございます。よい一日を。";
+                else if (hour < 18) headerTelop.textContent = "こんにちは。一日を楽しみましょう。";
+                else headerTelop.textContent = "こんばんは。今日もお疲れ様です。";
+                headerTelop.style.transform = "translateX(0)";
+                return;
+            }
         }
         requestAnimationFrame(animateTelop);
     }
