@@ -54,6 +54,23 @@ window.addEventListener("DOMContentLoaded", () => {
     updatePreviewTextStyle();
     updateGradientUI();
     updateTextColorUI();
+
+    // ヘッダーテロップ
+    const headerTelop = document.querySelector(".header-telop span");
+    const headerContainerWidth = headerTelop.parentElement.offsetWidth;
+    let x = headerContainerWidth;
+    const speed = 1;
+
+    function animateTelop() {
+        headerTelop.style.transform = `translateX(${x}px)`;
+        x -= speed;
+
+        if (x < -headerTelop.offsetWidth) {
+            x = headerContainerWidth;
+        }
+        requestAnimationFrame(animateTelop);
+    }
+    animateTelop();
 });
 
 function markDirty() {
