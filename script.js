@@ -73,9 +73,17 @@ window.addEventListener("DOMContentLoaded", () => {
                 x = headerContainerWidth;
             } else {
                 const hour = new Date().getHours();
-                if (hour < 12) headerTelop.textContent = "おはようございます。よい一日を。";
-                else if (hour < 18) headerTelop.textContent = "こんにちは。一日を楽しみましょう。";
-                else headerTelop.textContent = "こんばんは。今日もお疲れ様です。";
+                if (hour >= 4 && hour < 11) {
+                    headerTelop.textContent = "おはようございます。良い一日を。";
+                } else if (hour >= 11 && hour < 16) {
+                    headerTelop.textContent = "こんにちは。一日を楽しみましょう。";
+                } else if (hour >= hour < 20) {
+                    headerTelop.textContent = "夜に向けて、いい流れ作っていきましょう。";
+                } else if (hour >= 20 && hour < 24) {
+                    headerTelop.textContent = "こんばんは。今日もお疲れ様です。";
+                } else {
+                    headerTelop.textContent = "たまには夜更かしもいいよね。";
+                }
                 headerTelop.style.transform = "translateX(0)";
                 return;
             }
@@ -84,6 +92,7 @@ window.addEventListener("DOMContentLoaded", () => {
     }
     animateTelop();
 });
+
 
 function markDirty() {
     if (!isPresetApplied) return;
