@@ -89,13 +89,20 @@ pipBtn.addEventListener('click', async () => {
         if (!document.pictureInPictureElement) {
             await video.requestPictureInPicture();
             pipBtn.textContent = "テロップ使用解除";
+            pipBtn.classList.add("active");
         } else {
             await document.exitPictureInPicture();
             pipBtn.textContent = "テロップ使用";
+            pipBtn.classList.remove("active");
         }
     } catch (e) {
         console.error('PiP error', e);
     }
+});
+
+video.addEventListener('leavepictureinpicture', () => {
+    pipBtn.textContent = "テロップ使用";
+    pipBtn.classList.remove("active");
 });
 
 document.getElementById("updateTelopBtn").addEventListener('click', () => {

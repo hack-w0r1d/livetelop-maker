@@ -454,6 +454,10 @@ canvas {
     background-color: #0b5ed7;
 }
 
+#pipBtn.active {
+    background-color: #ff4fd8;
+}
+
 .help-text {
     width: 85%;
     margin: 10px auto 10px;
