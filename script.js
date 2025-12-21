@@ -114,8 +114,43 @@ document.getElementById("updateTelopBtn").addEventListener('click', () => {
     updateUI();
 });
 
-createTelopBtn.addEventListener('click', () => {
-    const stream = canvas.captureStream(60); // 60fps
+createTelopBtn.addEventListener('click', async () => {
+
+    createTelopBtn.style.display = "none";
+
+    const text = preview.textContent;
+
+    ctx.font = '48px sans-serif';
+
+    // 概算時間を計算
+    const speed = 2; // px/frame
+    const fps = 60;
+    const distance = canvas.width + ctx.measureText(text).width;
+    const durationSec = Math.ceil((distance / speed) / fps);
+
+    const creatingNotice = document.getElementById("creatingNotice");
+    const creatingText = document.getElementById("creatingText");
+    const catAnim = document.getElementById("catAnim");
+
+    creatingNotice.style.display = "flex";
+    catAnim.style.display = "block";
+    creatingText.textContent = `Creating ... 約${durationSec}秒`;
+
+    // カウントダウン処理
+    let remaining = durationSec;
+    const countdown = setInterval(() => {
+        remaining--;
+        if (remaining > 0) {
+            creatingText.textContent = `Creating ... 約${remaining}秒`
+        } else {
+            clearInterval(countdown);
+            creatingNotice.style.display = "none";
+            catAnim.style.display = "none";
+            createTelopBtn.style.display = "block";
+        }
+    }, 1000);
+
+    const stream = canvas.captureStream(fps);
     const recorder = new MediaRecorder(stream, { mimeType: 'video/webm' });
     const chunks = [];
 
@@ -134,10 +169,7 @@ createTelopBtn.addEventListener('click', () => {
     recorder.start();
 
     let x = canvas.width;
-    const speed = 2; // 横スクロール速度
-    const text = telopText;
-    ctx.font = '48px sans-serif';
-    const textWidth = ctx.measureText(telopText).width;
+    const textWidth = ctx.measureText(text).width;
 
     function draw() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);

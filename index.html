@@ -27,7 +27,7 @@
     <meta name="twitter:title" content="LiveTelop Maker">
     <meta name="twitter:description" content="ライブ配信用テロップを誰でも簡単に作成できるWebツール">
     <meta name="twitter:image" content="https://hack-w0r1d.github.io/livetelop-maker/images/x-card.png">
-    <link rel="stylesheet" href="style.css?v=1.4.0">
+    <link rel="stylesheet" href="style.css?v=1.4.45">
     <link rel="apple-touch-icon" sizes="192x192" href="apple-touch-icon.png">
   </head>
   <body>
@@ -115,6 +115,10 @@
         </div>
       </div>
       <button id="createTelopBtn">テロップ作成</button>
+      <div id="creatingNotice" class="creating-notice hidden">
+        <span id="creatingText">creating ... x秒</span>
+        <img id="catAnim" src="images/cat.png" alt="歩く猫">
+      </div>
       <!-- ここに動画を表示 -->
       <video id="pipVideo" loop playsinline></video>
       <button id="savePresetBtn" class="preset-btn">☆現在の設定を保存する（1つまで）<br>※すでにあるプリセットは上書きされます</button>
@@ -152,6 +156,6 @@
         </div>
       </div>
     </div>
-    <script src="script.js?v=1.4.0"></script>
+    <script src="script.js?v=1.4.45"></script>
   </body>
 </html>
