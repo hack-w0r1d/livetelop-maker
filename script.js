@@ -147,6 +147,9 @@ createTelopBtn.addEventListener('click', async () => {
             creatingNotice.style.display = "none";
             catAnim.style.display = "none";
             createTelopBtn.style.display = "block";
+
+            // テロップ使用ボタンへ自動スクロール
+            pipBtn.scrollIntoView({ behavior: "smooth", block: "center" });
         }
     }, 1000);
 
