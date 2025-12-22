@@ -444,6 +444,11 @@ canvas {
     background-color: #0b5ed7;
 }
 
+/* .highlight {
+    box-shadow: 0 0 0 4px rgba(255, 105, 180, 0.6);
+    transition: box-shadow 0.3s;
+} */
+
 #pipBtn.active {
     background-color: #ff4fd8;
 }

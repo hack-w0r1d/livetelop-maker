@@ -77,7 +77,7 @@ window.addEventListener("DOMContentLoaded", () => {
                     headerTelop.textContent = "おはようございます。良い一日を。";
                 } else if (hour >= 11 && hour < 16) {
                     headerTelop.textContent = "こんにちは。一日を楽しみましょう。";
-                } else if (hour >= hour < 20) {
+                } else if (hour >= 16 && hour < 20) {
                     headerTelop.textContent = "夜に向けて、いい流れ作っていきましょう。";
                 } else if (hour >= 20 && hour < 24) {
                     headerTelop.textContent = "こんばんは。今日もお疲れ様です。";
@@ -193,8 +193,14 @@ createTelopBtn.addEventListener('click', async () => {
             catAnim.style.display = "none";
             createTelopBtn.style.display = "block";
 
-            // テロップ使用ボタンへ自動スクロール
-            pipBtn.scrollIntoView({ behavior: "smooth", block: "center" });
+            // PiP化されていない時だけテロップ使用ボタンへ自動スクロール
+            if (!document.pictureInPictureElement) {
+                pipBtn.scrollIntoView({ behavior: "smooth", block: "center" });
+                // pipBtn.classList.add("highlight");
+                // setTimeout(() => {
+                //     pipBtn.classList.remove("highlight");
+                // }, 1500);
+            }
         }
     }, 1000);
 
