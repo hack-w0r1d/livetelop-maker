@@ -559,3 +559,14 @@ footer {
     color: white;
     font-weight: bold;
 }
+
+#snowCanvas {
+    display: block;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    pointer-events: none; /* 操作を邪魔しない */
+    z-index: 10002;
+  }
