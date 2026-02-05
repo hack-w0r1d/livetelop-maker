@@ -37,6 +37,9 @@ let autoSaveTimer = null;
 
 window.addEventListener("DOMContentLoaded", () => {
 
+    // // プレミアム削除（テスト用）
+    // localStorage.removeItem("premium");
+
     // 24時間以内の更新テロップ自動復元
     restoreCurrentTelopState();
 
@@ -93,44 +96,45 @@ window.addEventListener("DOMContentLoaded", () => {
     }
     animateTelop();
 
-    const snowCanvas = document.getElementById("snowCanvas");
-    const snowCtx = snowCanvas.getContext("2d");
+    // 雪のエフェクト
+    // const snowCanvas = document.getElementById("snowCanvas");
+    // const snowCtx = snowCanvas.getContext("2d");
 
-    function resize() {
-    snowCanvas.width = window.innerWidth;
-    snowCanvas.height = window.innerHeight;
-    }
-    resize();
-    window.addEventListener("resize", resize);
+    // function resize() {
+    // snowCanvas.width = window.innerWidth;
+    // snowCanvas.height = window.innerHeight;
+    // }
+    // resize();
+    // window.addEventListener("resize", resize);
 
-    // 雪の粒
-    const snowflakes = Array.from({ length: 100 }, () => ({
-    x: Math.random() * snowCanvas.width,
-    y: Math.random() * snowCanvas.height,
-    r: Math.random() * 3 + 1,
-    speed: Math.random() * 1 + 0.5,
-    }));
+    // // 雪の粒
+    // const snowflakes = Array.from({ length: 100 }, () => ({
+    // x: Math.random() * snowCanvas.width,
+    // y: Math.random() * snowCanvas.height,
+    // r: Math.random() * 3 + 1,
+    // speed: Math.random() * 1 + 0.5,
+    // }));
 
-    function drawSnow() {
-    snowCtx.clearRect(0, 0, snowCanvas.width, snowCanvas.height);
-    snowCtx.fillStyle = "rgba(255, 255, 255, 0.8)";
+    // function drawSnow() {
+    // snowCtx.clearRect(0, 0, snowCanvas.width, snowCanvas.height);
+    // snowCtx.fillStyle = "rgba(255, 255, 255, 0.8)";
 
-    snowflakes.forEach(flake => {
-        snowCtx.beginPath();
-        snowCtx.arc(flake.x, flake.y, flake.r, 0, Math.PI * 2);
-        snowCtx.fill();
+    // snowflakes.forEach(flake => {
+    //     snowCtx.beginPath();
+    //     snowCtx.arc(flake.x, flake.y, flake.r, 0, Math.PI * 2);
+    //     snowCtx.fill();
 
-        flake.y += flake.speed;
-        if (flake.y > snowCanvas.height) {
-        flake.y = -5;
-        flake.x = Math.random() * snowCanvas.width;
-        }
-    });
+    //     flake.y += flake.speed;
+    //     if (flake.y > snowCanvas.height) {
+    //     flake.y = -5;
+    //     flake.x = Math.random() * snowCanvas.width;
+    //     }
+    // });
 
-    requestAnimationFrame(drawSnow);
-    }
+    // requestAnimationFrame(drawSnow);
+    // }
 
-    drawSnow();
+    // drawSnow();
 });
 
 

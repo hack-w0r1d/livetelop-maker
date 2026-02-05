@@ -568,5 +568,5 @@ footer {
     width: 100vw;
     height: 100vh;
     pointer-events: none; /* 操作を邪魔しない */
-    z-index: 10002;
+    z-index: 9997;
   }
