@@ -50,6 +50,17 @@ function setTextStyle(ctx, option) {
 // テロップ作成（Canvas録画）
 // ─────────────────────────────────────────
 createTelopBtn.addEventListener('click', async () => {
+    // PiP中なら先に解除してからテロップを作成（iOSの文字サイズバグ対策）
+    if (document.pictureInPictureElement) {
+        try {
+            await document.exitPictureInPicture();
+            pipBtn.textContent = 'テロップ使用';
+            pipBtn.classList.remove('active');
+        } catch (e) {
+            console.error('PiP exit error', e);
+        }
+    }
+
     createTelopBtn.style.display = 'none';
 
     const text = preview.textContent;
