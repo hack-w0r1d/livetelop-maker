@@ -251,12 +251,21 @@ canvas {
 
 .color-picker {
     margin-top: 20px;
+    margin-bottom: 20px;
     display: flex;
-    justify-content: space-around;
+    justify-content: center;
+    align-items: center;
+    gap: 40px;
 }
 
 .color-picker label {
     display: flex;
+    align-items: center;
+}
+
+.color-picker input[type="color"] {
+    margin-bottom: 0;
+    vertical-align: middle;
 }
 
 .gradient-section {
@@ -392,6 +401,19 @@ canvas {
 
 .gradient-colors label input {
     margin: auto 10px;
+}
+
+.swap-gradient-btn {
+    width: auto;
+    margin: 0;
+    padding: 4px 10px;
+    font-size: 18px;
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 6px;
+    color: white;
+    cursor: pointer;
+    display: none;
 }
 
 #createTelopBtn {

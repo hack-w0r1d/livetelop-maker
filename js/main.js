@@ -49,11 +49,15 @@ export function updatePreviewTextStyle() {
 }
 
 export function updateGradientUI() {
-    const isNone  = state.gradientType === 'none';
-    const colors  = document.querySelector('.gradient-colors');
+    const isNone      = state.gradientType === 'none';
+    const colors      = document.querySelector('.gradient-colors');
+    const swapBtn     = document.getElementById('swapGradientBtn');
+    const swapColorBtn = document.getElementById('swapColorBtn');
     if (!colors) return;
     colors.style.opacity       = isNone ? 0.4 : 1;
     colors.style.pointerEvents = isNone ? 'none' : 'auto';
+    if (swapBtn) swapBtn.style.display = isNone ? 'none' : 'inline-block';
+    if (swapColorBtn) swapColorBtn.style.display = isNone ? 'inline-block' : 'none';
 }
 
 export function updateTextColorUI() {
@@ -234,6 +238,24 @@ window.addEventListener('DOMContentLoaded', () => {
     updatePreviewTextStyle();
     updateGradientUI();
     updateTextColorUI();
+
+    // 背景色と文字色の反転
+    document.getElementById('swapColorBtn').addEventListener('click', () => {
+        const tmp       = bgColor.value;
+        bgColor.value   = textColor.value;
+        textColor.value = tmp;
+        updatePreviewTextStyle();
+        requestAutoSave();
+    });
+
+    // グラデーション色反転
+    document.getElementById('swapGradientBtn').addEventListener('click', () => {
+        [state.gradientColor1, state.gradientColor2] = [state.gradientColor2, state.gradientColor1];
+        gradientColorStart.value = state.gradientColor1;
+        gradientColorEnd.value   = state.gradientColor2;
+        updatePreviewTextStyle();
+        requestAutoSave();
+    });
 
     initHeaderTelop();
 });
