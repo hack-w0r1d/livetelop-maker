@@ -63,8 +63,13 @@ createTelopBtn.addEventListener('click', async () => {
 
     createTelopBtn.style.display = 'none';
 
+    // フォント読み込み完了を待機
+    await document.fonts.ready;
+
+    const font = `48px "${state.fontFamily}", sans-serif`;
+    ctx.font = font;
+
     const text = preview.textContent;
-    ctx.font = '48px sans-serif';
 
     // 概算時間を計算
     const speed    = 2; // px/frame

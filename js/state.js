@@ -17,6 +17,7 @@ export const pipBtn         = document.getElementById('pipBtn');
 export const applyPresetBtn = document.getElementById('applyPresetBtn');
 export const savePresetBtn  = document.getElementById('savePresetBtn');
 export const deletePresetBtn= document.getElementById('deletePresetBtn');
+export const fontSelect = document.getElementById('fontSelect');
 
 // ─────────────────────────────────────────
 // 定数
@@ -37,4 +38,5 @@ export const state = {
     isPresetApplied: false,
     isDirty:         false,
     autoSaveTimer:   null,
+    fontFamily: '-apple-system',
 };

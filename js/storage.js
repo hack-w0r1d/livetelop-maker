@@ -18,13 +18,14 @@ const ONE_DAY = 24 * 60 * 60 * 1000;
 // ─────────────────────────────────────────
 export function saveCurrentTelopState() {
     const data = {
-        text:          state.telopText,
-        bgColor:       bgColor.value,
-        textColor:     textColor.value,
-        gradientType:  state.gradientType,
+        text:           state.telopText,
+        bgColor:        bgColor.value,
+        textColor:      textColor.value,
+        gradientType:   state.gradientType,
         gradientColor1: state.gradientColor1,
         gradientColor2: state.gradientColor2,
-        updatedAt:     Date.now(),
+        fontFamily:     state.fontFamily,
+        updatedAt:      Date.now(),
     };
     localStorage.setItem(KEY_CURRENT, JSON.stringify(data));
 }
@@ -65,6 +66,8 @@ export function restoreCurrentTelopState(onRestored) {
     textColor.value           = data.textColor     || defaultTextColor;
     gradientColorStart.value  = data.gradientColor1 || '#ff00ff';
     gradientColorEnd.value    = data.gradientColor2 || '#00ffff';
+    state.fontFamily          = data.fontFamily || '-apple-system';
+    document.getElementById('fontSelect').value = state.fontFamily;
 
     // ラジオボタン同期
     document.querySelectorAll('input[name="gradientType"]').forEach(radio => {
@@ -138,6 +141,7 @@ export function saveCurrentPreset() {
         gradientType:   state.gradientType,
         gradientColor1: state.gradientColor1,
         gradientColor2: state.gradientColor2,
+        fontFamily:     state.fontFamily,
     };
 
     localStorage.setItem(KEY_PRESETS, JSON.stringify([preset]));
@@ -158,6 +162,8 @@ export function applySavedPreset(onComplete) {
     textColor.value           = preset.textColor;
     gradientColorStart.value  = preset.gradientColor1 || '#ff00ff';
     gradientColorEnd.value    = preset.gradientColor2 || '#00ffff';
+    state.fontFamily = preset.fontFamily || '-apple-system';
+    document.getElementById('fontSelect').value = state.fontFamily;
 
     // ラジオボタン同期
     document.querySelectorAll('input[name="gradientType"]').forEach(radio => {

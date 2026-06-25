@@ -249,6 +249,14 @@ canvas {
     text-align: left;
 }
 
+.premium-section {
+    width: 85%;
+    margin: 15px auto 5px;
+    padding: 15px 15px 7px 15px;
+    text-align: left;
+    border: 1px solid #333;
+}
+
 .color-picker {
     margin-top: 20px;
     margin-bottom: 20px;
@@ -268,12 +276,13 @@ canvas {
     vertical-align: middle;
 }
 
-.gradient-section {
-    width: 85%;
-    margin: 15px auto 5px;
-    padding: 15px 15px 7px 15px;
+.gradient-section,
+.font-section {
+    width: 100%;
+    margin: 0 0 15px 0;
+    padding: 0;
     text-align: left;
-    border: 1px solid #333;
+    border: none;
 }
 
 .gradient-section h3 {
@@ -281,7 +290,7 @@ canvas {
     font-size: 16px;
 }
 
-.gradient-title {
+.premium-title {
     background: linear-gradient(
         to right,
         #ff4fd8,
@@ -294,6 +303,8 @@ canvas {
 
     display: flex;
     align-items: center;
+    font-size: 16px;
+    margin: 0 0 10px;
 }
 
 .badge {
@@ -414,6 +425,34 @@ canvas {
     color: white;
     cursor: pointer;
     display: none;
+}
+
+.font-selector {
+    position: relative;
+}
+
+#fontSelect {
+    width: 100%;
+    padding: 10px 12px;
+    padding-right: 40px;
+    border: 1px solid #333;
+    border-radius: 0;
+    background-color: black;
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+    appearance: none;
+}
+
+.font-selector::after {
+    content: '▼';
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none;
+    color: white;
+    font-size: 12px;
 }
 
 #createTelopBtn {

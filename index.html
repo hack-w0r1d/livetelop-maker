@@ -27,7 +27,10 @@
     <meta name="twitter:title" content="LiveTelop Maker">
     <meta name="twitter:description" content="ライブ配信用テロップを誰でも簡単に作成できるWebツール">
     <meta name="twitter:image" content="https://hack-w0r1d.github.io/livetelop-maker/images/x-card.png">
-    <link rel="stylesheet" href="style.css?v=1.9.7">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho&family=Hachi+Maru+Pop&family=Potta+One&family=Rampart+One&family=Stick&family=DotGothic16&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css?v=1.11.0">
     <link rel="apple-touch-icon" sizes="192x192" href="apple-touch-icon.png">
   </head>
   <body>
@@ -73,47 +76,70 @@
         </label>
       </div>
       <!-- プレミアム機能 -->
-      <div class="gradient-section premium">
-        <!-- 常に表示 -->
-        <h3 class="gradient-title">
-          グラデーション文字
-          <span class="badge premium-badge">
-            <span>Premium</span>
-          </span>
-        </h3>
+      <div class="premium-section">
+        <!-- グラデーション文字セクション -->
+        <div class="gradient-section premium">
+          <h3 class="premium-title">
+            グラデーション文字
+            <span class="badge premium-badge">
+              <span>Premium</span>
+            </span>
+          </h3>
+          <div class="premium-content hidden" id="gradientPremiumContent">
+            <div class="gradient-direction">
+              <label>
+                <input type="radio" name="gradientType" value="none" checked>
+                なし
+              </label>
+              <label>
+                <input type="radio" name="gradientType" value="horizontal">
+                横
+              </label>
+              <label>
+                <input type="radio" name="gradientType" value="vertical">
+                縦
+              </label>
+            </div>
+          <div class="gradient-colors">
+              <label>
+                開始色
+                <input type="color" id="gradientColorStart" value="#ff00ff">
+              </label>
+              <button id="swapGradientBtn" class="swap-gradient-btn" type="button">⇄</button>
+              <label>
+                終了色
+                <input type="color" id="gradientColorEnd" value="#00ffff">
+              </label>
+            </div>
+          </div>
+        </div>
+        <!-- フォントセクション -->
+        <div class="font-section premium">
+          <h3 class="premium-title">
+            フォント
+            <span class="badge premium-badge">
+              <span>Premium</span>
+            </span>
+          </h3>
+          <div class="premium-content hidden" id="fontPremiumContent">
+            <div class="font-selector">
+              <select id="fontSelect">
+                <option value="-apple-system">標準</option>
+                <option value="Shippori Mincho">Shippori Mincho（綺麗）</option>
+                <option value="Hachi Maru Pop">Hachi Maru Pop（可愛い）</option>
+                <option value="Potta One">Potta One（太字）</option>
+                <option value="Rampart One">Rampart One（立体的）</option>
+                <option value="Stick">Stick（カクカク）</option>
+                <option value="DotGothic16">DotGothic16（ドット風）</option>
+              </select>
+            </div>
+          </div>
+        </div>
         <!-- 未解放時に表示 -->
         <div class="premium-locked" id="premiumLocked">
           <button id="unlockBtn" class="unlock-btn">
             機能を解放する
           </button>
-        </div>
-        <!-- 解放後に表示 -->
-        <div class="premium-content hidden" id="premiumContent">
-          <div class="gradient-direction">
-            <label>
-              <input type="radio" name="gradientType" value="none" checked>
-              なし
-            </label>
-            <label>
-              <input type="radio" name="gradientType" value="horizontal">
-              横
-            </label>
-            <label>
-              <input type="radio" name="gradientType" value="vertical">
-              縦
-            </label>
-          </div>
-          <div class="gradient-colors">
-            <label>
-              開始色
-              <input type="color" id="gradientColorStart" value="#ff00ff">
-            </label>
-            <button id="swapGradientBtn" class="swap-gradient-btn" type="button">⇄</button>
-            <label>
-              終了色
-              <input type="color" id="gradientColorEnd" value="#00ffff">
-            </label>
-          </div>
         </div>
       </div>
       <button id="createTelopBtn">テロップ作成</button>
@@ -158,7 +184,6 @@
       </div>
     </div>
     <canvas id="snowCanvas"></canvas>
-     <!-- <script src="script.js?v=1.8.16"></script> -->
-    <script type="module" src="js/main.js?v=1.9.7"></script>
+    <script type="module" src="js/main.js?v=1.11.0"></script>
   </body>
 </html>

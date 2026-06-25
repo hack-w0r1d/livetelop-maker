@@ -1,6 +1,5 @@
 // premium.jsのみで使用するDOM参照はここでローカルに宣言
 const premiumLocked   = document.getElementById('premiumLocked');
-const premiumContent  = document.getElementById('premiumContent');
 const premiumToast    = document.getElementById('premiumToast');
 const premiumOverlay  = document.getElementById('premiumOverlay');
 const premiumBadge    = document.querySelector('.badge');
@@ -54,7 +53,8 @@ function submitPremiumKey() {
 
 export function showPremiumContent() {
     premiumLocked.classList.add('hidden');
-    premiumContent.classList.remove('hidden');
+    document.getElementById('gradientPremiumContent').classList.remove('hidden');
+    document.getElementById('fontPremiumContent').classList.remove('hidden');
 }
 
 function showPremiumAnimation() {
@@ -76,10 +76,12 @@ function showPremiumAnimation() {
 }
 
 function glowPremiumBadge() {
-    if (!premiumBadge) return;
-    premiumBadge.classList.remove('glow');
-    void premiumBadge.offsetWidth; // reflow強制でアニメーションをリセット
-    premiumBadge.classList.add('glow');
+    const badges = document.querySelectorAll('.badge');
+    badges.forEach(badge => {
+        badge.classList.remove('glow');
+        void badge.offsetWidth; // reflow強制でアニメーションをリセット
+        badge.classList.add('glow');
+    });
 }
 
 // ─────────────────────────────────────────

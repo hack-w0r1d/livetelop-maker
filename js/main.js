@@ -5,6 +5,7 @@ import {
     gradientColorStart, gradientColorEnd,
     preview, previewWrapper,
     applyPresetBtn, savePresetBtn, deletePresetBtn,
+    fontSelect,
     defaultBgColor, defaultTextColor,
 } from './state.js';
 import { initPremium }    from './premium.js';
@@ -238,6 +239,12 @@ window.addEventListener('DOMContentLoaded', () => {
     updatePreviewTextStyle();
     updateGradientUI();
     updateTextColorUI();
+
+    // フォント選択
+    fontSelect.addEventListener('change', () => {
+        state.fontFamily = fontSelect.value;
+        requestAutoSave();
+    });
 
     // 背景色と文字色の反転
     document.getElementById('swapColorBtn').addEventListener('click', () => {
