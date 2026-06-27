@@ -243,6 +243,7 @@ window.addEventListener('DOMContentLoaded', () => {
     // フォント選択
     fontSelect.addEventListener('change', () => {
         state.fontFamily = fontSelect.value;
+        preview.style.fontFamily = fontSelect.value;
         requestAutoSave();
     });
 

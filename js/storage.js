@@ -75,7 +75,8 @@ export function restoreCurrentTelopState(onRestored) {
     });
 
     // プレビュー反映
-    preview.textContent               = data.text;
+    preview.textContent                  = data.text;
+    preview.style.fontFamily             = state.fontFamily;
     previewWrapper.style.backgroundColor = bgColor.value;
 
     // state更新
