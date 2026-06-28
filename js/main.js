@@ -77,7 +77,6 @@ function updateClearTelopBtnVisibility() {
 // isDirtyフラグ管理
 // ─────────────────────────────────────────
 function markDirty() {
-    if (!state.isPresetApplied) return;
     state.isDirty        = true;
     state.isPresetApplied = false;
     updateUI();
@@ -168,11 +167,14 @@ applyPresetBtn.addEventListener('click', () => {
         updateTextColorUI();
         updateUI();
     });
+    applyPresetBtn.style.display = 'none';
 });
+
 savePresetBtn.addEventListener('click', () => {
     saveCurrentPreset();
     updateUI();
 });
+
 deletePresetBtn.addEventListener('click', () => {
     deletePreset(() => {
         updatePreviewTextStyle();
@@ -244,6 +246,7 @@ window.addEventListener('DOMContentLoaded', () => {
     fontSelect.addEventListener('change', () => {
         state.fontFamily = fontSelect.value;
         preview.style.fontFamily = fontSelect.value;
+        markDirty();
         requestAutoSave();
     });
 
@@ -253,6 +256,7 @@ window.addEventListener('DOMContentLoaded', () => {
         bgColor.value   = textColor.value;
         textColor.value = tmp;
         updatePreviewTextStyle();
+        markDirty();
         requestAutoSave();
     });
 
@@ -262,6 +266,7 @@ window.addEventListener('DOMContentLoaded', () => {
         gradientColorStart.value = state.gradientColor1;
         gradientColorEnd.value   = state.gradientColor2;
         updatePreviewTextStyle();
+        markDirty();
         requestAutoSave();
     });
 
