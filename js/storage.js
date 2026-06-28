@@ -3,7 +3,7 @@ import {
     telopInput, bgColor, textColor,
     gradientColorStart, gradientColorEnd,
     preview, previewWrapper,
-    defaultBgColor, defaultTextColor,
+    defaultBgColor, defaultTextColor, fontSelect,
 } from './state.js';
 
 // ─────────────────────────────────────────
@@ -172,7 +172,8 @@ export function applySavedPreset(onComplete) {
     });
 
     // プレビュー反映
-    preview.textContent               = preset.text;
+    preview.textContent                  = preset.text;
+    preview.style.fontFamily             = preset.fontFamily;
     previewWrapper.style.backgroundColor = preset.bgColor;
 
     // state更新
@@ -198,12 +199,17 @@ export function deletePreset(onComplete) {
     state.gradientType    = 'none';
     state.gradientColor1  = '#ff00ff';
     state.gradientColor2  = '#00ffff';
+    state.fontFamily      = '-apple-system';
 
     // DOM値をデフォルトに戻す
     bgColor.value            = defaultBgColor;
     textColor.value          = defaultTextColor;
     gradientColorStart.value = state.gradientColor1;
     gradientColorEnd.value   = state.gradientColor2;
+    fontSelect.value         = state.fontFamily;
+
+    // プレビューをデフォルトに戻す
+    preview.style.fontFamily = state.fontFamily;
 
     document.querySelector('input[name="gradientType"][value="none"]').checked = true;
 
