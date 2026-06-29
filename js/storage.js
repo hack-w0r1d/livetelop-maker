@@ -93,6 +93,36 @@ export function restoreCurrentTelopState(onRestored) {
 // ─────────────────────────────────────────
 // 復元通知
 // ─────────────────────────────────────────
+// 汎用通知関数
+// ─────────────────────────────────────────
+export function showNotice(message, options = {}) {
+    const notice = document.getElementById('showNotice');
+    if (!notice) return;
+
+    const {
+        duration = 2500,
+        fadeOutDuration = 1300,
+        type = null
+    } = options;
+
+    notice.textContent = message;
+    notice.classList.remove('hidden', 'fade-out');
+
+    // type があれば class に追加
+    if (type) {
+        notice.classList.add(type);
+    }
+
+    setTimeout(() => notice.classList.add('fade-out'), duration);
+    setTimeout(() => {
+        notice.classList.add('hidden');
+        // 次の通知に影響しないように type を削除
+        if (type) {
+            notice.classList.remove(type);
+        }
+    }, duration + fadeOutDuration);
+}
+
 function formatTimeAgo(timestamp) {
     const diffMin = Math.floor((Date.now() - timestamp) / 60000);
     if (diffMin < 1)  return '現在';
@@ -102,15 +132,21 @@ function formatTimeAgo(timestamp) {
     return '前回';
 }
 
+// 復元通知（showNotice() のラッパー）
 function showRestoreNotice(updatedAt) {
-    const notice = document.getElementById('restoreNotice');
-    if (!notice) return;
-
-    notice.textContent = `${formatTimeAgo(updatedAt)}の内容を自動復元しました`;
-    notice.classList.remove('hidden', 'fade-out');
-    setTimeout(() => notice.classList.add('fade-out'), 2500);
-    setTimeout(() => notice.classList.add('hidden'), 3800);
+    const message = `${formatTimeAgo(updatedAt)}の内容を自動復元しました`;
+    showNotice(message);
 }
+
+// function showRestoreNotice(updatedAt) {
+//     const notice = document.getElementById('showNotice');
+//     if (!notice) return;
+
+//     notice.textContent = `${formatTimeAgo(updatedAt)}の内容を自動復元しました`;
+//     notice.classList.remove('hidden', 'fade-out');
+//     setTimeout(() => notice.classList.add('fade-out'), 2500);
+//     setTimeout(() => notice.classList.add('hidden'), 3800);
+// }
 
 // ─────────────────────────────────────────
 // プリセット
@@ -125,7 +161,7 @@ export function hasPreset() {
     }
 }
 
-export function saveCurrentPreset() {
+export function saveCurrentPreset(onComplete) {
     const confirmed = confirm('現在の設定を保存しますか？');
     if (!confirmed) return;
 
@@ -149,6 +185,8 @@ export function saveCurrentPreset() {
     state.isDirty = false;
 
     alert('現在の設定をプリセットに保存しました。');
+
+    if (onComplete) onComplete();
 }
 
 export function applySavedPreset(onComplete) {

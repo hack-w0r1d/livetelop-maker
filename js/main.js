@@ -14,6 +14,7 @@ import {
     requestAutoSave,
     saveCurrentTelopState,
     restoreCurrentTelopState,
+    showNotice,
     hasPreset,
     saveCurrentPreset,
     applySavedPreset,
@@ -166,13 +167,17 @@ applyPresetBtn.addEventListener('click', () => {
         updateGradientUI();
         updateTextColorUI();
         updateUI();
+        showNotice('プリセットを適用しました');
     });
     applyPresetBtn.style.display = 'none';
 });
 
 savePresetBtn.addEventListener('click', () => {
-    saveCurrentPreset();
-    updateUI();
+    saveCurrentPreset(() => {
+        updateUI();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        showNotice('現在の設定をプリセットに保存しました', { type: 'green' });
+    });
 });
 
 deletePresetBtn.addEventListener('click', () => {
@@ -181,6 +186,7 @@ deletePresetBtn.addEventListener('click', () => {
         updateGradientUI();
         updateTextColorUI();
         updateUI();
+        showNotice('プリセットを削除しました', { type: 'red' });
     });
 });
 

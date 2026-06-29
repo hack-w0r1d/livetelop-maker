@@ -137,7 +137,7 @@ canvas {
     text-align: center;
 }
 
-.restore-notice {
+.show-notice {
     width: 85%;
     margin: 0 auto 8px;
     padding: 8px 12px;
@@ -150,11 +150,21 @@ canvas {
     transition: opacity 1.2s ease;
 }
 
-.restore-notice.fade-out {
+.show-notice.green {
+    background: rgba(154, 212, 90, 0.12);
+    color: #9ad45a;
+}
+
+.show-notice.red {
+    background: rgba(239, 68, 68, 0.12);
+    color: #ef4444;
+}
+
+.show-notice.fade-out {
     opacity: 0;
 }
 
-.restore-notice.hidden {
+.show-notice.hidden {
     display: none;
 }
 
