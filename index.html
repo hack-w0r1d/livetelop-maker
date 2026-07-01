@@ -30,7 +30,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho&family=Hachi+Maru+Pop&family=Potta+One&family=Rampart+One&family=Stick&family=DotGothic16&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css?v=1.11.18">
+    <link rel="stylesheet" href="style.css?v=1.12.8">
     <link rel="apple-touch-icon" sizes="192x192" href="apple-touch-icon.png">
   </head>
   <body>
@@ -74,6 +74,15 @@
           文字色　
           <input type="color" id="textColorPicker" value="#ffffff">
         </label>
+      </div>
+      <div class="speed-section">
+        <div class="speed-header">
+          <span>テロップの速さ</span>
+          <span id="speedLabel">普通</span>
+        </div>
+        <div class="speed-slider-wrapper">
+          <input type="range" id="speedSlider" min="0" max="100" step="1" value="50">
+        </div>
       </div>
       <!-- プレミアム機能 -->
       <div class="premium-section">
@@ -152,7 +161,7 @@
       <button id="savePresetBtn" class="preset-btn">☆現在の設定を保存する（1つまで）<br>※すでにあるプリセットは上書きされます</button>
       <div class="help-text">
         ※iOS26.5から一部の絵文字や特殊文字を入れると上手くテロップが生成されない場合があります。<br>
-        ※テロップ作成中はページを移動しないようにお願いします。<br>
+        ※テロップ作成中はページから移動しないようにお願いします。<br>
         ※テロップがスムーズに流れない場合は再度テロップを作成してください。
       </div>
       <button id="pipBtn">テロップ使用</button>
@@ -185,6 +194,6 @@
       </div>
     </div>
     <canvas id="snowCanvas"></canvas>
-    <script type="module" src="js/main.js?v=1.11.18"></script>
+    <script type="module" src="js/main.js?v=1.12.8"></script>
   </body>
 </html>

@@ -286,6 +286,88 @@ canvas {
     vertical-align: middle;
 }
 
+.speed-section {
+    width: 85%;
+    margin: 0 auto 20px;
+}
+
+.speed-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+    font-size: 15px;
+}
+
+#speedLabel {
+    color: rgba(255, 255, 255, 0.55);
+    font-size: 13px;
+}
+
+.speed-slider-wrapper {
+    position: relative;
+}
+
+.speed-slider-wrapper::before {
+    content: '';
+    position: absolute;
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.6);
+    left: 50%;
+    transform: translateX(-50%);
+    top: 6px;
+    pointer-events: none;
+    z-index: 0;
+}
+
+#speedSlider {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 28px;
+    background: transparent;
+    cursor: pointer;
+    position: relative;
+    z-index: 1;
+    margin-bottom: 0;
+}
+
+#speedSlider::-webkit-slider-runnable-track {
+    height: 5px;
+    border-radius: 3px;
+    background: linear-gradient(to right, #1e90ff, #2ecc71 50%, #ff3860);
+}
+
+#speedSlider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 24px;
+    height: 24px;
+    margin-top: -9px;
+    border-radius: 50%;
+    background: white;
+    cursor: pointer;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
+}
+
+#speedSlider::-moz-range-track {
+    height: 5px;
+    border-radius: 3px;
+    background: linear-gradient(to right, #1e90ff, #2ecc71 50%, #ff3860);
+}
+
+#speedSlider::-moz-range-thumb {
+    width: 24px;
+    height: 24px;
+    border: none;
+    border-radius: 50%;
+    background: white;
+    cursor: pointer;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
+}
+
 .gradient-section,
 .font-section {
     width: 100%;

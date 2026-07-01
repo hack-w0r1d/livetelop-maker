@@ -4,6 +4,7 @@ import {
     video,
     preview,
     bgColor, textColor,
+    speedFromSlider,
     createTelopBtn, pipBtn,
     isAndroid,
 } from './state.js';
@@ -72,7 +73,7 @@ createTelopBtn.addEventListener('click', async () => {
     const text = preview.textContent;
 
     // 概算時間を計算
-    const speed    = 2; // px/frame
+    const speed    = speedFromSlider(state.speedLevel); // スライダー位置から実速度を取得
     const fps      = 60;
     const distance = canvas.width + ctx.measureText(text).width;
     const durationSec = Math.ceil((distance / speed) / fps);

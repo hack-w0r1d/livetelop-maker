@@ -1,12 +1,13 @@
 import {
     state,
     telopInput, clearTelopBtn,
+    defaultBgColor, defaultTextColor,
     bgColor, textColor,
+    speedSlider, speedLabel, SPEED_LABELS,
     gradientColorStart, gradientColorEnd,
+    fontSelect,
     preview, previewWrapper,
     applyPresetBtn, savePresetBtn, deletePresetBtn,
-    fontSelect,
-    defaultBgColor, defaultTextColor,
 } from './state.js';
 import { initPremium }    from './premium.js';
 import { initTelop }      from './telop.js';
@@ -70,6 +71,11 @@ export function updateTextColorUI() {
     wrapper.style.pointerEvents = isGradient ? 'none' : 'auto';
 }
 
+function updateSpeedLabel() {
+    const index = Math.min(Math.round(speedSlider.value / 25), 4);
+    speedLabel.textContent = SPEED_LABELS[index];
+}
+
 function updateClearTelopBtnVisibility() {
     clearTelopBtn.style.display = telopInput.value.trim() ? 'block' : 'none';
 }
@@ -104,6 +110,27 @@ textColor.addEventListener('input', () => {
 });
 textColor.addEventListener('change', () => {
     updatePreviewTextStyle();
+    markDirty();
+});
+
+const SNAP_CENTER  = 50;
+const SNAP_ZONE    = 3;   // ±3の範囲でスナップ（47〜53）
+
+// テロップ速度
+speedSlider.addEventListener('input', () => {
+    let value = Number(speedSlider.value);
+
+    const nearCenter = Math.abs(value - SNAP_CENTER) <= SNAP_ZONE;
+    if (nearCenter) {
+        value = SNAP_CENTER;
+        speedSlider.value = SNAP_CENTER;
+    }
+
+    state.speedLevel = value;
+    updateSpeedLabel();
+    requestAutoSave();
+});
+speedSlider.addEventListener('change', () => {
     markDirty();
 });
 
@@ -164,8 +191,9 @@ clearTelopBtn.addEventListener('click', () => {
 applyPresetBtn.addEventListener('click', () => {
     applySavedPreset(() => {
         updatePreviewTextStyle();
-        updateGradientUI();
         updateTextColorUI();
+        updateGradientUI();
+        updateSpeedLabel();
         updateUI();
         showNotice('プリセットを適用しました');
     });
@@ -183,8 +211,9 @@ savePresetBtn.addEventListener('click', () => {
 deletePresetBtn.addEventListener('click', () => {
     deletePreset(() => {
         updatePreviewTextStyle();
-        updateGradientUI();
         updateTextColorUI();
+        updateGradientUI();
+        updateSpeedLabel();
         updateUI();
         showNotice('プリセットを削除しました', { type: 'red' });
     });
@@ -248,20 +277,20 @@ window.addEventListener('DOMContentLoaded', () => {
     updateGradientUI();
     updateTextColorUI();
 
-    // フォント選択
-    fontSelect.addEventListener('change', () => {
-        state.fontFamily = fontSelect.value;
-        preview.style.fontFamily = fontSelect.value;
-        markDirty();
-        requestAutoSave();
-    });
-
     // 背景色と文字色の反転
     document.getElementById('swapColorBtn').addEventListener('click', () => {
         const tmp       = bgColor.value;
         bgColor.value   = textColor.value;
         textColor.value = tmp;
         updatePreviewTextStyle();
+        markDirty();
+        requestAutoSave();
+    });
+
+    // フォント選択
+    fontSelect.addEventListener('change', () => {
+        state.fontFamily = fontSelect.value;
+        preview.style.fontFamily = fontSelect.value;
         markDirty();
         requestAutoSave();
     });
@@ -275,6 +304,8 @@ window.addEventListener('DOMContentLoaded', () => {
         markDirty();
         requestAutoSave();
     });
+
+    updateSpeedLabel();
 
     initHeaderTelop();
 });

@@ -1,9 +1,12 @@
 import {
     state,
-    telopInput, bgColor, textColor,
-    gradientColorStart, gradientColorEnd,
+    telopInput,
     preview, previewWrapper,
-    defaultBgColor, defaultTextColor, fontSelect,
+    defaultBgColor, defaultTextColor,
+    bgColor, textColor,
+    speedSlider, defaultSpeedLevel,
+    gradientColorStart, gradientColorEnd,
+    fontSelect,
 } from './state.js';
 
 // ─────────────────────────────────────────
@@ -21,6 +24,7 @@ export function saveCurrentTelopState() {
         text:           state.telopText,
         bgColor:        bgColor.value,
         textColor:      textColor.value,
+        speedLevel:     state.speedLevel,
         gradientType:   state.gradientType,
         gradientColor1: state.gradientColor1,
         gradientColor2: state.gradientColor2,
@@ -62,8 +66,10 @@ export function restoreCurrentTelopState(onRestored) {
 
     // DOM値を復元
     telopInput.value          = data.text;
-    bgColor.value             = data.bgColor       || defaultBgColor;
-    textColor.value           = data.textColor     || defaultTextColor;
+    bgColor.value             = data.bgColor || defaultBgColor;
+    textColor.value           = data.textColor || defaultTextColor;
+    state.speedLevel          = data.speedLevel ?? defaultSpeedLevel; // 既存のlocalStorageデータ（speedLevelが存在しないもの）を読み込んだ場合でもデフォルト値にフォールバックさせる
+    speedSlider.value         = state.speedLevel;
     gradientColorStart.value  = data.gradientColor1 || '#ff00ff';
     gradientColorEnd.value    = data.gradientColor2 || '#00ffff';
     state.fontFamily          = data.fontFamily || '-apple-system';
@@ -138,16 +144,6 @@ function showRestoreNotice(updatedAt) {
     showNotice(message);
 }
 
-// function showRestoreNotice(updatedAt) {
-//     const notice = document.getElementById('showNotice');
-//     if (!notice) return;
-
-//     notice.textContent = `${formatTimeAgo(updatedAt)}の内容を自動復元しました`;
-//     notice.classList.remove('hidden', 'fade-out');
-//     setTimeout(() => notice.classList.add('fade-out'), 2500);
-//     setTimeout(() => notice.classList.add('hidden'), 3800);
-// }
-
 // ─────────────────────────────────────────
 // プリセット
 // UI更新はmain.jsのコールバックで行う
@@ -175,6 +171,7 @@ export function saveCurrentPreset(onComplete) {
         text,
         bgColor:        bgColor.value,
         textColor:      textColor.value,
+        speedLevel:     state.speedLevel,
         gradientType:   state.gradientType,
         gradientColor1: state.gradientColor1,
         gradientColor2: state.gradientColor2,
@@ -199,6 +196,8 @@ export function applySavedPreset(onComplete) {
     telopInput.value          = preset.text;
     bgColor.value             = preset.bgColor;
     textColor.value           = preset.textColor;
+    state.speedLevel          = preset.speedLevel ?? defaultSpeedLevel;
+    speedSlider.value         = state.speedLevel;
     gradientColorStart.value  = preset.gradientColor1 || '#ff00ff';
     gradientColorEnd.value    = preset.gradientColor2 || '#00ffff';
     state.fontFamily = preset.fontFamily || '-apple-system';
@@ -242,6 +241,8 @@ export function deletePreset(onComplete) {
     // DOM値をデフォルトに戻す
     bgColor.value            = defaultBgColor;
     textColor.value          = defaultTextColor;
+    state.speedLevel         = defaultSpeedLevel;
+    speedSlider.value        = defaultSpeedLevel;
     gradientColorStart.value = state.gradientColor1;
     gradientColorEnd.value   = state.gradientColor2;
     fontSelect.value         = state.fontFamily;
