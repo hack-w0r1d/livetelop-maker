@@ -26,6 +26,33 @@ header {
 
 h1 {
     margin-bottom: 18px;
+
+    --base-text: #ffffff;
+
+    font-weight: 800;
+    color: #ffffff;
+
+    background-image: linear-gradient(
+      90deg,
+      var(--base-text) 0%, var(--base-text) 33%,
+      #ff4d4d 38%, #ff9f43 42%, #ffe14d 46%,
+      #4dff9f 50%, #4dc3ff 54%, #b366ff 58%,
+      var(--base-text) 63%, var(--base-text) 100%
+    );
+    background-size: 300% 100%;
+    background-repeat: no-repeat;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+
+    animation: h1-neon-shine 4.8s ease-out forwards;
+}
+
+@keyframes h1-neon-shine {
+    0%   { background-position: 100% 0;
+           text-shadow: 0 0 2px rgba(255,77,210,.15), 0 0 6px rgba(77,210,255,.1); }
+    50%  { text-shadow: 0 0 10px rgba(255,77,210,.75), 0 0 26px rgba(77,210,255,.55), 0 0 42px rgba(179,102,255,.35); }
+    100% { background-position: 0% 0; text-shadow: none; }
 }
 
 input {
