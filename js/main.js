@@ -1,12 +1,14 @@
 import {
     state,
+    canvas, ctx,
     telopInput, clearTelopBtn,
+    preview, previewWrapper,
     defaultBgColor, defaultTextColor,
     bgColor, textColor,
-    speedSlider, speedLabel, SPEED_LABELS,
+    speedSlider, speedLabel, SPEED_LABELS, speedFromSlider,
     gradientColorStart, gradientColorEnd,
     fontSelect,
-    preview, previewWrapper,
+    createTelopBtn,
     applyPresetBtn, savePresetBtn, deletePresetBtn,
 } from './state.js';
 import { initPremium }    from './premium.js';
@@ -32,6 +34,10 @@ export function updateUI() {
     savePresetBtn.disabled        = !state.isDirty;
     applyPresetBtn.style.display  = has ? 'inline-block' : 'none';
     deletePresetBtn.style.display = has && state.isPresetApplied ? 'inline-block' : 'none';
+}
+
+function updateClearTelopBtnVisibility() {
+    clearTelopBtn.style.display = telopInput.value.trim() ? 'block' : 'none';
 }
 
 export function updatePreviewTextStyle() {
@@ -76,8 +82,16 @@ function updateSpeedLabel() {
     speedLabel.textContent = SPEED_LABELS[index];
 }
 
-function updateClearTelopBtnVisibility() {
-    clearTelopBtn.style.display = telopInput.value.trim() ? 'block' : 'none';
+function updateCreateTelopBtn() {
+    if (!state.telopReady) {
+        createTelopBtn.textContent = 'テロップ作成';
+        return;
+    }
+    ctx.font = `48px "${state.fontFamily}", sans-serif`;
+    const speed = speedFromSlider(state.speedLevel);
+    const distance = canvas.width + ctx.measureText(state.telopText).width;
+    const durationSec = Math.ceil((distance / speed) / 60);
+    createTelopBtn.textContent = `テロップ作成 (${durationSec}s)`;
 }
 
 // ─────────────────────────────────────────
@@ -128,6 +142,7 @@ speedSlider.addEventListener('input', () => {
 
     state.speedLevel = value;
     updateSpeedLabel();
+    updateCreateTelopBtn();
     requestAutoSave();
 });
 speedSlider.addEventListener('change', () => {
@@ -169,9 +184,11 @@ document.getElementById('updateTelopBtn').addEventListener('click', () => {
     preview.textContent   = text;
     state.isDirty         = true;
     state.isPresetApplied = false;
+    state.telopReady      = true;
 
     updatePreviewTextStyle();
     saveCurrentTelopState();
+    updateCreateTelopBtn();
     updateUI();
 });
 
@@ -306,6 +323,7 @@ window.addEventListener('DOMContentLoaded', () => {
     });
 
     updateSpeedLabel();
+    updateCreateTelopBtn();
 
     initHeaderTelop();
 });

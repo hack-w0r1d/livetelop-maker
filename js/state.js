@@ -51,6 +51,7 @@ export function speedFromSlider(sliderValue) {
 // ─────────────────────────────────────────
 export const state = {
     telopText:       'テロップ作成ボタンを押すとこちらの文章がテロップとして作成されます。（サンプル）',
+    telopReady:      false,
     speedLevel:      defaultSpeedLevel,
     gradientType:    'none',   // 'none' | 'horizontal' | 'vertical'
     gradientColor1:  '#ff00ff',
