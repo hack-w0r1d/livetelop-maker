@@ -600,16 +600,9 @@ canvas {
 }
 
 #catAnim {
-    /* display: none; */
-    width: 40px;
-    height: 40px;
-    animation: walk 1s steps(4) infinite;
-}
-
-@keyframes walk {
-    0% { transform: translateX(0); }
-    50% { transform: translateX(5px); }
-    100% { transform: translateX(0); }
+    width: 100px;
+    height: 100px;
+    margin: 0 auto;
 }
 
 #pipBtn {
@@ -623,11 +616,6 @@ canvas {
 #pipBtn:active {
     background-color: #0b5ed7;
 }
-
-/* .highlight {
-    box-shadow: 0 0 0 4px rgba(255, 105, 180, 0.6);
-    transition: box-shadow 0.3s;
-} */
 
 #pipBtn.active {
     background-color: #ff4fd8;

@@ -15,6 +15,15 @@ import { saveCurrentTelopState } from './storage.js';
 // ─────────────────────────────────────────
 export function initTelop() {
     video.controls = isAndroid;
+
+    // Lottieアニメーション初期化
+    lottieAnim = lottie.loadAnimation({
+        container: catAnimEl,
+        renderer:  'svg',
+        loop:      true,
+        autoplay:  false,
+        path:      'animations/cat.json',
+    });
 }
 
 // ─────────────────────────────────────────
@@ -82,20 +91,21 @@ createTelopBtn.addEventListener('click', async () => {
     const creatingText   = document.getElementById('creatingText');
     const catAnim        = document.getElementById('catAnim');
 
-    creatingNotice.style.display = 'flex';
-    catAnim.style.display        = 'block';
-    creatingText.textContent     = `Creating ... 約${durationSec}秒`;
+    creatingNotice.classList.remove('hidden');
+    buildCreatingText(durationSec);
+    lottieAnim.play();
 
     // カウントダウン
     let remaining = durationSec;
     const countdown = setInterval(() => {
         remaining--;
         if (remaining > 0) {
-            creatingText.textContent = `Creating ... 約${remaining}秒`;
+            const countdownEl = document.getElementById('creatingCountdown');
+            if (countdownEl) countdownEl.textContent = ` 約${remaining}秒`;
         } else {
             clearInterval(countdown);
-            creatingNotice.style.display = 'none';
-            catAnim.style.display        = 'none';
+            creatingNotice.classList.add('hidden');
+            lottieAnim.stop();
             createTelopBtn.style.display = 'block';
 
             // PiP化されていない時だけテロップ使用ボタンへ自動スクロール
@@ -150,6 +160,76 @@ createTelopBtn.addEventListener('click', async () => {
     }
     loop();
 });
+
+// DOM参照をモジュールスコープに移動
+const creatingNotice = document.getElementById('creatingNotice');
+const creatingText   = document.getElementById('creatingText');
+const catAnimEl      = document.getElementById('catAnim');
+
+let lottieAnim = null;
+
+function buildCreatingText(sec) {
+    const T       = 2.5;
+    const bounceD = 0.35;
+    const lGap    = 0.1;
+    const dGap    = 0.22;
+    const letters = 'Creating'.split('');
+    const nL      = letters.length; // 8
+
+    const dotStart       = (nL - 1) * lGap + bounceD + 0.05; // 1.0s
+    const lastDotEnd     = dotStart + 2 * dGap + bounceD;     // 1.69s
+    const disappearStart = lastDotEnd + 0.15;                  // 1.84s
+    const disappearEnd   = disappearStart + 0.2;               // 2.04s
+
+    // <style>を1つだけ管理（重複挿入しない）
+    let styleEl = document.getElementById('creatingAnimStyle');
+    if (!styleEl) {
+        styleEl = document.createElement('style');
+        styleEl.id = 'creatingAnimStyle';
+        document.head.appendChild(styleEl);
+    }
+
+    const pct = t => (t / T * 100).toFixed(2);
+    let css = '';
+
+    // 文字バウンスキーフレーム（8個）
+    letters.forEach((_, i) => {
+        const s    = i * lGap;
+        const peak = s + bounceD * 0.45;
+        const e    = s + bounceD;
+        css += `@keyframes cl${i}{`
+             + `0%,${pct(s)}%{transform:translateY(0)}`
+             + `${pct(peak)}%{transform:translateY(-7px)}`
+             + `${pct(e)}%,100%{transform:translateY(0)}}`;
+    });
+
+    // ドット出現＋バウンスキーフレーム（3個）
+    for (let j = 0; j < 3; j++) {
+        const s      = dotStart + j * dGap;
+        const peak   = s + bounceD * 0.45;
+        const e      = s + bounceD;
+        const before = Math.max(0, s - 0.01);
+        css += `@keyframes cd${j}{`
+             + `0%,${pct(before)}%{opacity:0}`
+             + `${pct(s)}%,${pct(disappearStart)}%{opacity:1}`
+             + `${pct(disappearEnd)}%,100%{opacity:0}}`;
+    }
+
+    styleEl.textContent = css;
+
+    // HTML生成
+    const lHTML = letters.map((ch, i) =>
+        `<span style="display:inline-block;animation:cl${i} ${T}s ease-in-out infinite">${ch}</span>`
+    ).join('');
+
+    const dHTML = [0, 1, 2].map(j =>
+        `<span style="display:inline-block;opacity:0;animation:cd${j} ${T}s ease-in-out infinite">.</span>`
+    ).join('');
+
+    creatingText.innerHTML =
+        `<span>${lHTML} ${dHTML}</span>` +
+        `<span id="creatingCountdown"> 約${sec}秒</span>`;
+}
 
 // ─────────────────────────────────────────
 // Picture-in-Picture制御

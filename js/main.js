@@ -211,6 +211,7 @@ applyPresetBtn.addEventListener('click', () => {
         updateTextColorUI();
         updateGradientUI();
         updateSpeedLabel();
+        updateCreateTelopBtn();
         updateUI();
         showNotice('プリセットを適用しました');
     });
