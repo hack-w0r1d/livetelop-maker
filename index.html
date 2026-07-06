@@ -30,7 +30,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho&family=Hachi+Maru+Pop&family=Potta+One&family=Rampart+One&family=Stick&family=DotGothic16&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css?v=1.15.22">
+    <link rel="stylesheet" href="style.css?v=1.16.7">
     <link rel="apple-touch-icon" sizes="192x192" href="apple-touch-icon.png">
   </head>
   <body>
@@ -153,8 +153,9 @@
       </div>
       <button id="createTelopBtn">テロップ作成</button>
       <div id="creatingNotice" class="creating-notice hidden">
-        <div id="creatingText"></div>
         <div id="catAnim"></div>
+        <div id="creatingText"></div>
+        <button id="cancelCreatingBtn" type="button" aria-label="中断する">×</button>
       </div>
       <!-- ここに動画を表示 -->
       <video id="pipVideo" loop playsinline></video>
@@ -195,6 +196,6 @@
     </div>
     <canvas id="snowCanvas"></canvas>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie.min.js"></script>
-    <script type="module" src="js/main.js?v=1.15.22"></script>
+    <script type="module" src="js/main.js?v=1.16.7"></script>
   </body>
 </html>

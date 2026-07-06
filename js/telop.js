@@ -8,7 +8,10 @@ import {
     createTelopBtn, pipBtn,
     isAndroid,
 } from './state.js';
-import { saveCurrentTelopState } from './storage.js';
+import {
+    saveCurrentTelopState,
+    showNotice,
+} from './storage.js';
 
 // ─────────────────────────────────────────
 // 初期化
@@ -57,9 +60,26 @@ function setTextStyle(ctx, option) {
 }
 
 // ─────────────────────────────────────────
+// テロップ作成中の状態管理（中断処理用）
+// ─────────────────────────────────────────
+let isCreating          = false;
+let isCancelling        = false;
+let activeRecorder      = null;
+let rafId               = null;  // requestAnimationFrameのID
+let countdownIntervalId = null;
+
+// DOM参照をモジュールスコープに移動
+const creatingNotice    = document.getElementById('creatingNotice');
+const creatingText      = document.getElementById('creatingText');
+const catAnimEl         = document.getElementById('catAnim');
+const cancelCreatingBtn = document.getElementById('cancelCreatingBtn');
+
+// ─────────────────────────────────────────
 // テロップ作成（Canvas録画）
 // ─────────────────────────────────────────
 createTelopBtn.addEventListener('click', async () => {
+    if (isCreating) return;  // 二重起動防止
+
     // PiP中なら先に解除してからテロップを作成（iOSの文字サイズバグ対策）
     if (document.pictureInPictureElement) {
         try {
@@ -87,26 +107,25 @@ createTelopBtn.addEventListener('click', async () => {
     const distance = canvas.width + ctx.measureText(text).width;
     const durationSec = Math.ceil((distance / speed) / fps);
 
-    const creatingNotice = document.getElementById('creatingNotice');
-    const creatingText   = document.getElementById('creatingText');
-    const catAnim        = document.getElementById('catAnim');
+    isCreating = true;
+    isCancelling = false;
 
     creatingNotice.classList.remove('hidden');
+    catAnimEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
     buildCreatingText(durationSec);
     lottieAnim.play();
 
     // カウントダウン
     let remaining = durationSec;
-    const countdown = setInterval(() => {
+    countdownIntervalId = setInterval(() => {
         remaining--;
         if (remaining > 0) {
             const countdownEl = document.getElementById('creatingCountdown');
             if (countdownEl) countdownEl.textContent = ` 約${remaining}秒`;
         } else {
-            clearInterval(countdown);
-            creatingNotice.classList.add('hidden');
-            lottieAnim.stop();
-            createTelopBtn.style.display = 'block';
+            clearInterval(countdownIntervalId);
+            countdownIntervalId = null;
+            finishCreatingUI();
 
             // PiP化されていない時だけテロップ使用ボタンへ自動スクロール
             if (!document.pictureInPictureElement) {
@@ -118,9 +137,18 @@ createTelopBtn.addEventListener('click', async () => {
     const stream   = canvas.captureStream(fps);
     const recorder = new MediaRecorder(stream, { mimeType: 'video/webm' });
     const chunks   = [];
+    activeRecorder = recorder;
 
     recorder.ondataavailable = e => chunks.push(e.data);
     recorder.onstop = () => {
+        activeRecorder = null;
+
+        // 中断時は動画を生成せず破棄する
+        if (isCancelling) {
+            isCancelling = false;
+            return;
+        }
+
         const blob = new Blob(chunks, { type: 'video/webm' });
         if (video.src) URL.revokeObjectURL(video.src);
         video.src = URL.createObjectURL(blob);
@@ -154,19 +182,48 @@ createTelopBtn.addEventListener('click', async () => {
         draw();
         if (x < -textWidth) {
             recorder.stop();
+            rafId = null;
             return;
         }
-        requestAnimationFrame(loop);
+        rafId = requestAnimationFrame(loop);
     }
     loop();
 });
 
-// DOM参照をモジュールスコープに移動
-const creatingNotice = document.getElementById('creatingNotice');
-const creatingText   = document.getElementById('creatingText');
-const catAnimEl      = document.getElementById('catAnim');
+// 作成中UIを終了状態に戻す（正常完了・中断の両方から呼ぶ）
+function finishCreatingUI() {
+    isCreating = false;
+    creatingNotice.classList.add('hidden');
+    lottieAnim.stop();
+    createTelopBtn.style.display = 'block';
+ }
 
 let lottieAnim = null;
+
+// ─────────────────────────────────────────
+// テロップ作成の中断
+// ─────────────────────────────────────────
+cancelCreatingBtn.addEventListener('click', () => {
+    if (!isCreating) return;
+    isCancelling = true;
+
+    if (rafId !== null) {
+        cancelAnimationFrame(rafId);
+        rafId = null;
+    }
+    if (countdownIntervalId !== null) {
+        clearInterval(countdownIntervalId);
+        countdownIntervalId = null;
+    }
+    if (activeRecorder && activeRecorder.state !== 'inactive') {
+        activeRecorder.stop(); // onstop側でisCancellingを見て動画生成をスキップする
+    }
+
+    finishCreatingUI();
+
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    showNotice('テロップの作成を中断しました', { type: 'red' });
+});
 
 function buildCreatingText(sec) {
     const T       = 2.5;
@@ -203,7 +260,7 @@ function buildCreatingText(sec) {
              + `${pct(e)}%,100%{transform:translateY(0)}}`;
     });
 
-    // ドット出現＋バウンスキーフレーム（3個）
+    // ドット出現
     for (let j = 0; j < 3; j++) {
         const s      = dotStart + j * dGap;
         const peak   = s + bounceD * 0.45;

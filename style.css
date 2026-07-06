@@ -595,14 +595,35 @@ canvas {
     gap: 10px;
 }
 
-#creatingText {
-    margin-bottom: 5px;
-}
-
 #catAnim {
     width: 100px;
     height: 100px;
     margin: 0 auto;
+}
+
+#cancelCreatingBtn {
+    width: 30px;
+    height: 30px;
+    margin: 20px auto 0;
+    padding: 0;
+    border: none;
+    border-radius: 50%;
+    background: rgba(120, 0, 0, 0.6);
+    color: rgba(255, 255, 255, 0.4);
+    font-size: 22px;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#cancelCreatingBtn:hover {
+    background: rgba(150, 0, 0, 0.75);
+    color: rgba(255, 255, 255, 0.6);
+}
+
+#cancelCreatingBtn:active {
+    background: rgba(90, 0, 0, 0.75);
 }
 
 #pipBtn {
