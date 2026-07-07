@@ -12,6 +12,9 @@ import {
     saveCurrentTelopState,
     showNotice,
 } from './storage.js';
+import {
+    drawTextWithEffect, resolveGlowColor
+} from './effect.js';
 
 // ─────────────────────────────────────────
 // 初期化
@@ -159,6 +162,7 @@ createTelopBtn.addEventListener('click', async () => {
     recorder.start();
 
     let x = canvas.width;
+    let frameCount = 0;
     const textWidth = ctx.measureText(text).width;
 
     function draw() {
@@ -174,8 +178,25 @@ createTelopBtn.addEventListener('click', async () => {
             color2:    state.gradientColor2,
             textColor: textColor.value,
         });
-        ctx.fillText(text, x, 70);
+
+        const glowColor = resolveGlowColor(
+            state.gradientType,
+            textColor.value,
+            state.gradientColor1,
+            state.gradientColor2
+        );
+
+        drawTextWithEffect(ctx, state.textEffect, {
+            text,
+            x,
+            y: 70,
+            fillStyle: ctx.fillStyle,
+            glowColor,
+            frameCount,
+        });
+
         x -= speed;
+        frameCount++;
     }
 
     function loop() {

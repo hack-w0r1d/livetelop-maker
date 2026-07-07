@@ -15,6 +15,8 @@ export const speedLabel  = document.getElementById('speedLabel');
 export const gradientColorStart = document.getElementById('gradientColorStart');
 export const gradientColorEnd   = document.getElementById('gradientColorEnd');
 export const fontSelect = document.getElementById('fontSelect');
+export const textEffectSelect = document.getElementById('textEffectSelect');
+export const bgEffectSelect   = document.getElementById('bgEffectSelect');
 export const createTelopBtn = document.getElementById('createTelopBtn');
 export const pipBtn         = document.getElementById('pipBtn');
 export const applyPresetBtn = document.getElementById('applyPresetBtn');
@@ -57,6 +59,8 @@ export const state = {
     gradientColor1:  '#ff00ff',
     gradientColor2:  '#00ffff',
     fontFamily:      '-apple-system',
+    textEffect:      'none',
+    bgEffect:        'none',
     isPresetApplied: false,
     isDirty:         false,
     autoSaveTimer:   null,

@@ -8,11 +8,13 @@ import {
     speedSlider, speedLabel, SPEED_LABELS, speedFromSlider,
     gradientColorStart, gradientColorEnd,
     fontSelect,
+    textEffectSelect, bgEffectSelect,
     createTelopBtn,
     applyPresetBtn, savePresetBtn, deletePresetBtn,
 } from './state.js';
 import { initPremium }    from './premium.js';
 import { initTelop }      from './telop.js';
+import { TEXT_EFFECTS, BG_EFFECTS } from './effect.js';
 import {
     requestAutoSave,
     saveCurrentTelopState,
@@ -40,6 +42,30 @@ function updateClearTelopBtnVisibility() {
     clearTelopBtn.style.display = telopInput.value.trim() ? 'block' : 'none';
 }
 
+const effectStatus = document.getElementById('effectStatus');
+
+export function updateEffectStatus() {
+    const labels = [];
+
+    if (state.textEffect !== 'none') {
+        const effect = TEXT_EFFECTS[state.textEffect];
+        if (effect) labels.push(`文字エフェクト: ${effect.label}`);
+    }
+    if (state.bgEffect !== 'none') {
+        const effect = BG_EFFECTS[state.bgEffect];
+        if (effect) labels.push(`背景エフェクト: ${effect.label}`);
+    }
+
+    if (labels.length === 0) {
+        effectStatus.textContent = '';
+        effectStatus.classList.add('hidden');
+        return;
+    }
+
+    effectStatus.textContent = labels.join(' / ');
+    effectStatus.classList.remove('hidden');
+}
+
 export function updatePreviewTextStyle() {
     previewWrapper.style.backgroundColor = bgColor.value;
 
@@ -57,6 +83,14 @@ export function updatePreviewTextStyle() {
     preview.style.color = 'transparent';
 }
 
+export function updateTextColorUI() {
+    const wrapper = document.querySelector('.text-color-wrapper');
+    if (!wrapper) return;
+    const isGradient = state.gradientType !== 'none';
+    wrapper.style.opacity       = isGradient ? 0.4 : 1;
+    wrapper.style.pointerEvents = isGradient ? 'none' : 'auto';
+}
+
 export function updateGradientUI() {
     const isNone      = state.gradientType === 'none';
     const colors      = document.querySelector('.gradient-colors');
@@ -67,14 +101,6 @@ export function updateGradientUI() {
     colors.style.pointerEvents = isNone ? 'none' : 'auto';
     if (swapBtn) swapBtn.style.display = isNone ? 'none' : 'inline-block';
     if (swapColorBtn) swapColorBtn.style.display = isNone ? 'inline-block' : 'none';
-}
-
-export function updateTextColorUI() {
-    const wrapper = document.querySelector('.text-color-wrapper');
-    if (!wrapper) return;
-    const isGradient = state.gradientType !== 'none';
-    wrapper.style.opacity       = isGradient ? 0.4 : 1;
-    wrapper.style.pointerEvents = isGradient ? 'none' : 'auto';
 }
 
 function updateSpeedLabel() {
@@ -211,6 +237,7 @@ applyPresetBtn.addEventListener('click', () => {
         updateTextColorUI();
         updateGradientUI();
         updateSpeedLabel();
+        updateEffectStatus();
         updateCreateTelopBtn();
         updateUI();
         showNotice('プリセットを適用しました');
@@ -232,6 +259,7 @@ deletePresetBtn.addEventListener('click', () => {
         updateTextColorUI();
         updateGradientUI();
         updateSpeedLabel();
+        updateEffectStatus();
         updateUI();
         showNotice('プリセットを削除しました', { type: 'red' });
     });
@@ -281,6 +309,7 @@ window.addEventListener('DOMContentLoaded', () => {
         updatePreviewTextStyle();
         updateGradientUI();
         updateTextColorUI();
+        updateEffectStatus();
         updateUI();
     });
 
@@ -294,12 +323,23 @@ window.addEventListener('DOMContentLoaded', () => {
     updatePreviewTextStyle();
     updateGradientUI();
     updateTextColorUI();
+    updateEffectStatus();
 
     // 背景色と文字色の反転
     document.getElementById('swapColorBtn').addEventListener('click', () => {
         const tmp       = bgColor.value;
         bgColor.value   = textColor.value;
         textColor.value = tmp;
+        updatePreviewTextStyle();
+        markDirty();
+        requestAutoSave();
+    });
+
+    // グラデーション色反転
+    document.getElementById('swapGradientBtn').addEventListener('click', () => {
+        [state.gradientColor1, state.gradientColor2] = [state.gradientColor2, state.gradientColor1];
+        gradientColorStart.value = state.gradientColor1;
+        gradientColorEnd.value   = state.gradientColor2;
         updatePreviewTextStyle();
         markDirty();
         requestAutoSave();
@@ -313,12 +353,18 @@ window.addEventListener('DOMContentLoaded', () => {
         requestAutoSave();
     });
 
-    // グラデーション色反転
-    document.getElementById('swapGradientBtn').addEventListener('click', () => {
-        [state.gradientColor1, state.gradientColor2] = [state.gradientColor2, state.gradientColor1];
-        gradientColorStart.value = state.gradientColor1;
-        gradientColorEnd.value   = state.gradientColor2;
-        updatePreviewTextStyle();
+    // 文字エフェクト選択
+    textEffectSelect.addEventListener('change', () => {
+        state.textEffect = textEffectSelect.value;
+        updateEffectStatus();
+        markDirty();
+        requestAutoSave();
+    });
+
+    // 背景エフェクト選択
+    bgEffectSelect.addEventListener('change', () => {
+        state.bgEffect = bgEffectSelect.value;
+        updateEffectStatus();
         markDirty();
         requestAutoSave();
     });

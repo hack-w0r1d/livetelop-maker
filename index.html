@@ -30,7 +30,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho&family=Hachi+Maru+Pop&family=Potta+One&family=Rampart+One&family=Stick&family=DotGothic16&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css?v=1.16.7">
+    <link rel="stylesheet" href="style.css?v=2.0.5">
     <link rel="apple-touch-icon" sizes="192x192" href="apple-touch-icon.png">
   </head>
   <body>
@@ -61,6 +61,7 @@
       <div class="guide">【現在のテロップ】</div>
       <!-- Canvasで動画生成 -->
       <canvas id="canvas" width="800" height="100"></canvas>
+      <div id="effectStatus" class="effect-status hidden"></div>
       <div id="previewWrapper">
         <div id="telopPreview">テロップ作成ボタンを押すとこちらの文章がテロップとして作成されます。（サンプル）</div>
       </div>
@@ -144,6 +145,39 @@
             </div>
           </div>
         </div>
+        <!-- 文字エフェクトセクション -->
+        <div class="text-effect-section premium">
+          <h3 class="premium-title">
+            文字エフェクト
+            <span class="badge premium-badge">
+              <span>Premium</span>
+            </span>
+          </h3>
+          <div class="premium-content hidden" id="textEffectPremiumContent">
+            <div class="effect-selector">
+              <select id="textEffectSelect">
+                <option value="none">なし</option>
+                <option value="glow">Neon（発光）</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <!-- 背景エフェクトセクション -->
+        <div class="bg-effect-section premium">
+          <h3 class="premium-title">
+            背景エフェクト
+            <span class="badge premium-badge">
+              <span>Premium</span>
+            </span>
+          </h3>
+          <div class="premium-content hidden" id="bgEffectPremiumContent">
+            <div class="effect-selector">
+              <select id="bgEffectSelect">
+                <option value="none">なし</option>
+              </select>
+            </div>
+          </div>
+        </div>
         <!-- 未解放時に表示 -->
         <div class="premium-locked" id="premiumLocked">
           <button id="unlockBtn" class="unlock-btn">
@@ -163,7 +197,7 @@
       <div class="help-text">
         ※iOS26.5から一部の絵文字や特殊文字を入れると上手くテロップが生成されない場合があります。<br>
         ※テロップ作成中はページから移動しないようにお願いします。<br>
-        ※テロップがスムーズに流れない場合は再度テロップを作成してください。
+        ※プレミアム機能は予告なく終了することがあります。
       </div>
       <button id="pipBtn">テロップ使用</button>
       <div class="guide">テロップ作成後、上記のボタンから実際にテロップとして使用することができます。</div>
@@ -196,6 +230,6 @@
     </div>
     <canvas id="snowCanvas"></canvas>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie.min.js"></script>
-    <script type="module" src="js/main.js?v=1.16.7"></script>
+    <script type="module" src="js/main.js?v=2.0.5"></script>
   </body>
 </html>

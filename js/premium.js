@@ -55,6 +55,8 @@ export function showPremiumContent() {
     premiumLocked.classList.add('hidden');
     document.getElementById('gradientPremiumContent').classList.remove('hidden');
     document.getElementById('fontPremiumContent').classList.remove('hidden');
+    document.getElementById('textEffectPremiumContent').classList.remove('hidden');
+    document.getElementById('bgEffectPremiumContent').classList.remove('hidden');
 }
 
 function showPremiumAnimation() {

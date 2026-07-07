@@ -7,6 +7,7 @@ import {
     speedSlider, defaultSpeedLevel,
     gradientColorStart, gradientColorEnd,
     fontSelect,
+    textEffectSelect, bgEffectSelect,
 } from './state.js';
 
 // ─────────────────────────────────────────
@@ -29,6 +30,8 @@ export function saveCurrentTelopState() {
         gradientColor1: state.gradientColor1,
         gradientColor2: state.gradientColor2,
         fontFamily:     state.fontFamily,
+        textEffect:     state.textEffect,
+        bgEffect:       state.bgEffect,
         updatedAt:      Date.now(),
     };
     localStorage.setItem(KEY_CURRENT, JSON.stringify(data));
@@ -74,6 +77,10 @@ export function restoreCurrentTelopState(onRestored) {
     gradientColorEnd.value    = data.gradientColor2 || '#00ffff';
     state.fontFamily          = data.fontFamily || '-apple-system';
     document.getElementById('fontSelect').value = state.fontFamily;
+    state.textEffect          = data.textEffect || 'none';
+    state.bgEffect            = data.bgEffect   || 'none';
+    textEffectSelect.value    = state.textEffect;
+    bgEffectSelect.value      = state.bgEffect;
 
     // ラジオボタン同期
     document.querySelectorAll('input[name="gradientType"]').forEach(radio => {
@@ -178,6 +185,8 @@ export function saveCurrentPreset(onComplete) {
         gradientColor1: state.gradientColor1,
         gradientColor2: state.gradientColor2,
         fontFamily:     state.fontFamily,
+        textEffect:     state.textEffect,
+        bgEffect:       state.bgEffect,
     };
 
     localStorage.setItem(KEY_PRESETS, JSON.stringify([preset]));
@@ -204,6 +213,10 @@ export function applySavedPreset(onComplete) {
     gradientColorEnd.value    = preset.gradientColor2 || '#00ffff';
     state.fontFamily = preset.fontFamily || '-apple-system';
     document.getElementById('fontSelect').value = state.fontFamily;
+    state.textEffect = preset.textEffect || 'none';
+    state.bgEffect   = preset.bgEffect   || 'none';
+    textEffectSelect.value = state.textEffect;
+    bgEffectSelect.value   = state.bgEffect;
 
     // ラジオボタン同期
     document.querySelectorAll('input[name="gradientType"]').forEach(radio => {
@@ -239,6 +252,8 @@ export function deletePreset(onComplete) {
     state.gradientColor1  = '#ff00ff';
     state.gradientColor2  = '#00ffff';
     state.fontFamily      = '-apple-system';
+    state.textEffect      = 'none';
+    state.bgEffect        = 'none';
 
     // DOM値をデフォルトに戻す
     bgColor.value            = defaultBgColor;
@@ -248,6 +263,8 @@ export function deletePreset(onComplete) {
     gradientColorStart.value = state.gradientColor1;
     gradientColorEnd.value   = state.gradientColor2;
     fontSelect.value         = state.fontFamily;
+    textEffectSelect.value   = state.textEffect;
+    bgEffectSelect.value     = state.bgEffect;
 
     // プレビューをデフォルトに戻す
     preview.style.fontFamily = state.fontFamily;
