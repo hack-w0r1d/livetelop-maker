@@ -13,7 +13,8 @@ import {
     showNotice,
 } from './storage.js';
 import {
-    drawTextWithEffect, resolveGlowColor
+    drawTextWithEffect, resolveGlowColor,
+    initBackgroundEffect, drawBackgroundEffect,
 } from './effect.js';
 
 // ─────────────────────────────────────────
@@ -165,10 +166,19 @@ createTelopBtn.addEventListener('click', async () => {
     let frameCount = 0;
     const textWidth = ctx.measureText(text).width;
 
+    // 背景エフェクトの初期配置は作成開始時に1回だけ生成する
+    const bgEffectData = initBackgroundEffect(state.bgEffect, canvas.width, canvas.height);
+
     function draw() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         ctx.fillStyle = bgColor.value;
         ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        drawBackgroundEffect(ctx, state.bgEffect, {
+            effectData: bgEffectData,
+            frameCount,
+        });
+
         setTextStyle(ctx, {
             gradientType: state.gradientType,
             text,
