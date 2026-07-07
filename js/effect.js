@@ -34,19 +34,35 @@ export const TEXT_EFFECTS = {
     none: {
         label: 'なし',
     },
-    glow: {
+    neon: {
         label: 'Neon（発光）',
         drawText(ctx, { text, x, y, fillStyle, glowColor, frameCount }) {
             // sin波で0〜1を滑らかに往復させ、呼吸するような発光を作る
-            const pulse = (Math.sin(frameCount * 0.04) + 1) / 2;
-            const blur  = 6 + pulse * 18; // 発光の強さ（弱い⇔強いを繰り返す）
+            const pulse = (Math.sin(frameCount * 0.028) + 1) / 2;
+            const blur = 4 + pulse * 18; // 発光の強さ（弱い⇔強いを繰り返す）
 
             ctx.save();
+
+            // 発光色
             ctx.shadowColor = glowColor;
-            ctx.shadowBlur  = blur;
-            ctx.fillStyle   = fillStyle;
+
+            // 外側の柔らかい光
+            ctx.shadowBlur = blur;
+            ctx.fillStyle = glowColor;
             ctx.fillText(text, x, y);
-            ctx.fillText(text, x, y); // 発光を強調するため重ね塗り
+
+            // 中間の光
+            ctx.shadowBlur = blur * 0.6;
+            ctx.fillText(text, x, y);
+
+            // 内側の強い光
+            ctx.shadowBlur = blur * 0.3;
+            ctx.fillText(text, x, y);
+
+            ctx.shadowBlur = 0;
+            ctx.fillStyle = fillStyle;
+            ctx.fillText(text, x, y);
+
             ctx.restore();
         },
     },
