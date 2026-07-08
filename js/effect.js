@@ -66,6 +66,85 @@ export const TEXT_EFFECTS = {
             ctx.restore();
         },
     },
+    flame: {
+        label: 'Flame（炎）',
+
+        // 文字色・グラデーションの選択に関わらず、専用の炎カラーで描画する
+        drawText(ctx, { text, x, y, frameCount }) {
+            const metrics = ctx.measureText(text);
+            const ascent  = metrics.actualBoundingBoxAscent  || 32;
+            const descent = metrics.actualBoundingBoxDescent || 8;
+
+            // グラデーション位置
+            const shift = Math.sin(frameCount * 0.04) * (ascent * 0.15);
+
+            const gradient = ctx.createLinearGradient(
+                x,
+                y + descent + shift,
+                x,
+                y - ascent + shift
+            );
+
+            // 色境界をゆっくり揺らす
+            const orangeStop =
+                0.45 +
+                Math.sin(frameCount * 0.08) * 0.04 +
+                Math.sin(frameCount * 0.15) * 0.02;
+
+            gradient.addColorStop(0.00, '#ff2200');
+            gradient.addColorStop(orangeStop, '#ff8800');
+            gradient.addColorStop(0.78, '#ffdd33');
+            gradient.addColorStop(1.00, '#fff8bb');
+
+            // 発光のちらつき
+            const flicker =
+                Math.sin(frameCount * 0.34) * 0.5 +
+                Math.sin(frameCount * 0.19) * 0.35 +
+                Math.sin(frameCount * 0.73) * 0.15;
+
+            const glow = 12 + Math.abs(flicker) * 12;
+
+            // 上側だけ熱で揺れる
+            const topWave =
+                Math.sin(frameCount * 0.18) * 1.4 +
+                Math.sin(frameCount * 0.11) * 0.8;
+
+            ctx.save();
+
+            ctx.shadowColor = '#ff5500';
+            ctx.shadowBlur = glow;
+
+            ctx.fillStyle = gradient;
+
+            // ベース文字
+            ctx.fillText(text, x, y);
+
+            // 上側だけ少しずらして描くことで炎っぽく
+            ctx.save();
+            ctx.beginPath();
+            ctx.rect(
+                x - 20,
+                y - ascent - 10,
+                metrics.width + 40,
+                ascent * 0.6
+            );
+            ctx.clip();
+
+            ctx.globalAlpha = 0.55;
+            ctx.fillText(
+                text,
+                x + Math.sin(frameCount * 0.25) * 0.6,
+                y - topWave
+            );
+            ctx.restore();
+
+            // 発光を少し強調
+            ctx.globalAlpha = 0.35;
+            ctx.fillText(text, x, y);
+
+            ctx.restore();
+        },
+    },
 };
 
 // ─────────────────────────────────────────
@@ -84,6 +163,29 @@ function buildFourPointStarPath(ctx, cx, cy, outerRadius) {
         else ctx.lineTo(px, py);
     }
     ctx.closePath();
+}
+
+// 火の粉を1個生成する
+function spawnSpark(width, height) {
+    return {
+        x: width * Math.random(),
+        y: height + Math.random() * 15,
+        // 初期位置
+        startY: height,
+        // 左右移動
+        vx: (Math.random() - 0.5) * 0.3,
+        // 上昇速度（個体差を大きめに）
+        vy: -(0.3 + Math.random() * 1.0),
+        // サイズ
+        radius: 0.8 + Math.random() * 1.6,
+        // 寿命
+        life: 50 + Math.random() * 70,
+        age: 0,
+        // 揺れ用
+        phase: Math.random() * Math.PI * 2,
+        waveSpeed: 0.05 + Math.random() * 0.12,
+        waveAmount: 0.15 + Math.random() * 0.35,
+    };
 }
 
 // ─────────────────────────────────────────
@@ -130,6 +232,71 @@ export const BG_EFFECTS = {
                 ctx.fillStyle = `rgba(255, 255, 255, ${alpha})`;
                 buildFourPointStarPath(ctx, star.x, star.y, r * 3);
                 ctx.fill();
+            });
+        },
+    },
+    sparks: {
+        label: 'Sparks（火の粉）',
+        init(width, height) {
+            const particles = [];
+            for (let i = 0; i < 24; i++) {
+                particles.push(spawnSpark(width, height));
+            }
+            // draw()側でリスポーン時に再利用するため、幅と高さも一緒に保持する
+            return { width, height, particles };
+        },
+        draw(ctx, { effectData }) {
+            const { width, height, particles } = effectData;
+
+            particles.forEach((spark) => {
+                spark.age++;
+                // 少し減速
+                spark.vy *= 0.997;
+                spark.y += spark.vy;
+                // 左右にふわふわ
+                spark.x +=
+                    spark.vx +
+                    Math.sin(
+                        spark.phase +
+                        spark.age * spark.waveSpeed
+                    ) * spark.waveAmount;
+
+                // フェードインは早め、フェードアウトは緩やかに
+                const t = spark.age / spark.life;
+                const alpha = t < 0.15 ? t / 0.15 : Math.max(0, 1 - (t - 0.15) / 0.85);
+                // 上に行くほど小さく
+                const r = spark.radius * (1 - t * 0.45);
+                // 色温度変化
+                let color;
+
+                if (t < 0.25) {
+                    color = '255,160,50';
+                } else if (t < 0.55) {
+                    color = '255,110,30';
+                } else if (t < 0.8) {
+                    color = '230,55,20';
+                } else {
+                    color = '130,20,10';
+                }
+
+                // 外側の発光
+                const gradient = ctx.createRadialGradient(spark.x, spark.y, 0, spark.x, spark.y, r * 4.3);
+                gradient.addColorStop(0, `rgba(${color},${alpha})`);
+                gradient.addColorStop(1, `rgba(${color},0)`);
+                ctx.fillStyle = gradient;
+                ctx.beginPath();
+                ctx.arc(spark.x, spark.y, r * 4.3, 0, Math.PI * 2);
+                ctx.fill();
+                // 明るい芯
+                ctx.beginPath();
+                ctx.fillStyle =`rgba(255,255,220,${alpha})`;
+                ctx.arc(spark.x, spark.y, Math.max(0.4, r), 0, Math.PI * 2);
+                ctx.fill();
+
+                // 寿命が尽きた、または画面外に出たら再生成
+                if (spark.age >= spark.life || spark.y < -20 || spark.x < -20 || spark.x > width + 20) {
+                    Object.assign(spark, spawnSpark(width, height));
+                }
             });
         },
     },
