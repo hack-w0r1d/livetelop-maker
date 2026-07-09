@@ -100,8 +100,6 @@ export function restoreCurrentTelopState(onRestored) {
 
     showRestoreNotice(data.updatedAt);
 
-    state.telopReady = true;
-
     if (onRestored) onRestored();
 }
 

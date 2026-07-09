@@ -109,10 +109,6 @@ function updateSpeedLabel() {
 }
 
 function updateCreateTelopBtn() {
-    if (!state.telopReady) {
-        createTelopBtn.textContent = 'テロップ作成';
-        return;
-    }
     ctx.font = `48px "${state.fontFamily}", sans-serif`;
     const speed = speedFromSlider(state.speedLevel);
     const distance = canvas.width + ctx.measureText(state.telopText).width;
@@ -210,7 +206,6 @@ document.getElementById('updateTelopBtn').addEventListener('click', () => {
     preview.textContent   = text;
     state.isDirty         = true;
     state.isPresetApplied = false;
-    state.telopReady      = true;
 
     updatePreviewTextStyle();
     saveCurrentTelopState();
