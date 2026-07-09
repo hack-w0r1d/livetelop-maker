@@ -188,6 +188,21 @@ function spawnSpark(width, height) {
     };
 }
 
+// ステージライトの光源を1つ生成する
+function makeStageLightFixture(x, y, angle, color, alpha, length, sweepRange, sweepSpeed, phase = Math.random() * Math.PI * 2) {
+    return {
+        x, y,
+        baseAngle:  angle,
+        sweepRange: sweepRange + Math.random() * sweepRange * 0.3, // 個体差
+        sweepSpeed: sweepSpeed + Math.random() * sweepSpeed * 0.3,
+        phase,
+        spread:     0.045 + Math.random() * 0.015, // ビームの太さ
+        length,
+        color,
+        alpha,
+    };
+}
+
 // ─────────────────────────────────────────
 // 背景エフェクト定義
 // ─────────────────────────────────────────
@@ -298,6 +313,90 @@ export const BG_EFFECTS = {
                     Object.assign(spark, spawnSpark(width, height));
                 }
             });
+        },
+    },
+    stageLights: {
+        label: 'Stage Lights（ライブ照明）',
+        init(width, height) {
+            const length = Math.sqrt(width * width + height * height) * 1.1;
+            const fixtures = [];
+
+            // 白は控えめに揺らす（スポットとして安定させる）
+            const WHITE_SWEEP_RANGE = 0.05;
+            const WHITE_SWEEP_SPEED = 0.01;
+            // ピンク・ブルーはライブ感を出すため大きく揺らす
+            const BLUE_SWEEP_RANGE = 0.55;
+            const BLUE_SWEEP_SPEED = 0.035;
+            const VIVID_SWEEP_RANGE = 0.4;
+            const VIVID_SWEEP_SPEED = 0.03;
+
+            // 左右上角：斜めの白い光。キャンバス中央に向くよう角度を計算し、ステージ中央を照らす
+            const centerX = width / 2;
+            const centerY = height / 2;
+            const leftX = -4, leftY = -4;
+            const rightX = width + 4, rightY = -4;
+            const targetY = height * 0.72;
+            const leftAngle = Math.atan2(targetY - leftY, centerX - width * 0.12 - leftX);
+            const rightAngle = Math.atan2(targetY - rightY, centerX + width * 0.12 - rightX);
+            const centerAngle = -Math.PI / 2; // 真上
+            const blueOffset = 0.6;
+            const leftBlueAngle  = centerAngle + blueOffset;
+            const rightBlueAngle = centerAngle - blueOffset;
+
+            fixtures.push(makeStageLightFixture(leftX, leftY, leftAngle, '255,255,255', 0.5, length, WHITE_SWEEP_RANGE, WHITE_SWEEP_SPEED));
+            fixtures.push(makeStageLightFixture(rightX, rightY, rightAngle, '255,255,255', 0.5, length, WHITE_SWEEP_RANGE, WHITE_SWEEP_SPEED));
+
+            // ピンク・紫を交互に。左1/3エリア下から2本
+            fixtures.push(makeStageLightFixture(width * (1 / 3) * 0.3, height + 4, -1.05, '255,60,170', 0.65, length, VIVID_SWEEP_RANGE, VIVID_SWEEP_SPEED));
+            fixtures.push(makeStageLightFixture(width * (1 / 3) * 0.7, height + 4, -0.65, '170,60,255', 0.65, length, VIVID_SWEEP_RANGE, VIVID_SWEEP_SPEED));
+
+            // 右1/3エリア下から2本（左の配置を左右反転）
+            fixtures.push(makeStageLightFixture(width - width * (1 / 3) * 0.3, height + 4, -Math.PI - (-1.05), '255,60,170', 0.65, length, VIVID_SWEEP_RANGE, VIVID_SWEEP_SPEED));
+            fixtures.push(makeStageLightFixture(width - width * (1 / 3) * 0.7, height + 4, -Math.PI - (-0.65), '170,60,255', 0.65, length, VIVID_SWEEP_RANGE, VIVID_SWEEP_SPEED));
+
+            // 中央2/3エリア下：鮮やかな青の光2本
+            fixtures.push(makeStageLightFixture(width * (1 / 3) + width * (1 / 3) * 0.3, height + 4, leftBlueAngle, '70,170,255', 0.65, length, BLUE_SWEEP_RANGE, BLUE_SWEEP_SPEED, 0));
+            fixtures.push(makeStageLightFixture(width * (1 / 3) + width * (1 / 3) * 0.7, height + 4, rightBlueAngle, '70,170,255', 0.65, length, BLUE_SWEEP_RANGE, BLUE_SWEEP_SPEED, Math.PI));
+
+            return fixtures;
+        },
+        draw(ctx, { effectData, frameCount }) {
+            ctx.save();
+            ctx.globalCompositeOperation = 'lighter'; // 加算合成で交差部分を明るくする
+
+            effectData.forEach((f) => {
+                const angle = f.baseAngle + Math.sin(frameCount * f.sweepSpeed + f.phase) * f.sweepRange;
+
+                const x1 = f.x + Math.cos(angle - f.spread) * f.length;
+                const y1 = f.y + Math.sin(angle - f.spread) * f.length;
+                const x2 = f.x + Math.cos(angle + f.spread) * f.length;
+                const y2 = f.y + Math.sin(angle + f.spread) * f.length;
+                const midX = f.x + Math.cos(angle) * f.length;
+                const midY = f.y + Math.sin(angle) * f.length;
+
+                const gradient = ctx.createLinearGradient(f.x, f.y, midX, midY);
+                gradient.addColorStop(0, `rgba(${f.color}, ${f.alpha})`);
+                gradient.addColorStop(1, `rgba(${f.color}, 0)`);
+
+                ctx.beginPath();
+                ctx.moveTo(f.x, f.y);
+                ctx.lineTo(x1, y1);
+                ctx.lineTo(x2, y2);
+                ctx.closePath();
+                ctx.fillStyle = gradient;
+                ctx.fill();
+
+                // 光源本体の発光
+                const core = ctx.createRadialGradient(f.x, f.y, 0, f.x, f.y, 7);
+                core.addColorStop(0, `rgba(${f.color}, ${f.alpha + 0.3})`);
+                core.addColorStop(1, `rgba(${f.color}, 0)`);
+                ctx.fillStyle = core;
+                ctx.beginPath();
+                ctx.arc(f.x, f.y, 7, 0, Math.PI * 2);
+                ctx.fill();
+            });
+
+            ctx.restore();
         },
     },
 };
