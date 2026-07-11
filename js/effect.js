@@ -194,7 +194,7 @@ function spawnFireworkParticle(x, y, color, sectorAngle, sectorIndex, isEmber) {
         vx: Math.cos(angle) * speed,
         vy: Math.sin(angle) * speed,
         color,
-        size: 2 + Math.floor(Math.random() * 3), // 2〜4pxの正方形ドット
+        size: 2.2 + Math.floor(Math.random() * 3), // 2〜4pxの正方形ドット
         life: isEmber ? 75 + Math.random() * 55 : 40 + Math.random() * 25,
         age: 0,
         trail: [],
@@ -328,7 +328,7 @@ export const BG_EFFECTS = {
                     const sectorAngle = (Math.PI * 2) / sectorCount;
                     for (let i = 0; i < sectorCount; i++) {
                         // 1方向あたり3〜4粒。最後の1粒だけ尾を引くエンバーにして余韻を残す
-                        const grains = 3 + Math.floor(Math.random() * 2);
+                        const grains = 4 + Math.floor(Math.random() * 2);
                         for (let g = 0; g < grains; g++) {
                             const isEmber = g === grains - 1;
                             effectData.particles.push(
