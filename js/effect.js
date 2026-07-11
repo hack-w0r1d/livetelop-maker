@@ -34,38 +34,6 @@ export const TEXT_EFFECTS = {
     none: {
         label: 'なし',
     },
-    neon: {
-        label: 'Neon（発光）',
-        drawText(ctx, { text, x, y, fillStyle, glowColor, frameCount }) {
-            // sin波で0〜1を滑らかに往復させ、呼吸するような発光を作る
-            const pulse = (Math.sin(frameCount * 0.028) + 1) / 2;
-            const blur = 4 + pulse * 18; // 発光の強さ（弱い⇔強いを繰り返す）
-
-            ctx.save();
-
-            // 発光色
-            ctx.shadowColor = glowColor;
-
-            // 外側の柔らかい光
-            ctx.shadowBlur = blur;
-            ctx.fillStyle = glowColor;
-            ctx.fillText(text, x, y);
-
-            // 中間の光
-            ctx.shadowBlur = blur * 0.6;
-            ctx.fillText(text, x, y);
-
-            // 内側の強い光
-            ctx.shadowBlur = blur * 0.3;
-            ctx.fillText(text, x, y);
-
-            ctx.shadowBlur = 0;
-            ctx.fillStyle = fillStyle;
-            ctx.fillText(text, x, y);
-
-            ctx.restore();
-        },
-    },
     flame: {
         label: 'Flame（炎）',
 
@@ -145,24 +113,102 @@ export const TEXT_EFFECTS = {
             ctx.restore();
         },
     },
+    neon: {
+        label: 'Neon（発光）',
+        drawText(ctx, { text, x, y, fillStyle, glowColor, frameCount }) {
+            // sin波で0〜1を滑らかに往復させ、呼吸するような発光を作る
+            const pulse = (Math.sin(frameCount * 0.028) + 1) / 2;
+            const blur = 4 + pulse * 18; // 発光の強さ（弱い⇔強いを繰り返す）
+
+            ctx.save();
+
+            // 発光色
+            ctx.shadowColor = glowColor;
+
+            // 外側の柔らかい光
+            ctx.shadowBlur = blur;
+            ctx.fillStyle = glowColor;
+            ctx.fillText(text, x, y);
+
+            // 中間の光
+            ctx.shadowBlur = blur * 0.6;
+            ctx.fillText(text, x, y);
+
+            // 内側の強い光
+            ctx.shadowBlur = blur * 0.3;
+            ctx.fillText(text, x, y);
+
+            ctx.shadowBlur = 0;
+            ctx.fillStyle = fillStyle;
+            ctx.fillText(text, x, y);
+
+            ctx.restore();
+        },
+    },
 };
 
 // ─────────────────────────────────────────
 // 背景エフェクト用ユーティリティ
 // ─────────────────────────────────────────
-// 四芒星（スパークル）のパスを構築する。呼び出し側でfillStyle設定後にctx.fill()すること
-function buildFourPointStarPath(ctx, cx, cy, outerRadius) {
-    const innerRadius = outerRadius * 0.25; // 細い棘にするため小さめの比率
-    ctx.beginPath();
-    for (let i = 0; i < 8; i++) {
-        const angle  = (Math.PI / 4) * i - Math.PI / 2; // 上（12時方向）から開始
-        const radius = i % 2 === 0 ? outerRadius : innerRadius;
-        const px = cx + Math.cos(angle) * radius;
-        const py = cy + Math.sin(angle) * radius;
-        if (i === 0) ctx.moveTo(px, py);
-        else ctx.lineTo(px, py);
-    }
-    ctx.closePath();
+
+// 花火の色バリエーション（デジタル・ネオン系。RGB文字列でrgba()に直接埋め込んで使う）
+const FIREWORK_COLORS = [
+    '255,74,74',    // Red
+    '66,245,138',   // Green
+    '255,217,61',   // Yellow
+    '46,107,255',   // Blue
+    '255,107,223',  // Pink
+    '83,232,255',   // Cyan
+    '255,140,46',   // Orange
+];
+
+// 打ち上げロケットを1個生成する
+function spawnFireworkRocket(width, height) {
+    return {
+        x: width * (0.15 + Math.random() * 0.7),
+        y: height + 10,
+        // 爆発する高さ（画面上側15%〜50%あたり）
+        targetY: height * (0.15 + Math.random() * 0.35),
+        vx: (Math.random() - 0.5) * 0.4, // わずかに左右へブレる
+        vy: -(3.2 + Math.random() * 1.3), // 上昇速度
+        trail: [], // 軌跡（古い位置ほど薄く描く）
+        color: FIREWORK_COLORS[Math.floor(Math.random() * FIREWORK_COLORS.length)],
+    };
+}
+
+// 爆発の破片（パーティクル）を1個生成する。
+// 角度をsectorCount方向に均等分割してからジッターを加えることで、
+// 完全ランダムではなく「規則的に割れる基盤」のような広がり方にする。
+// isEmberがtrueの場合は「燃え殻」として長寿命・尾長め・後半は明滅せず
+// じわっとフェードする（柳咲き花火のような余韻を残す）
+function spawnFireworkParticle(x, y, color, sectorAngle, sectorIndex, isEmber) {
+    const jitter = (Math.random() - 0.5) * sectorAngle * 0.5;
+    const angle  = sectorAngle * sectorIndex + jitter;
+    // 速度をなめらかな乱数ではなく数段階に量子化（デジタルな「刻み」感を出す）
+    const speedTiers = isEmber
+        ? [2.6, 3.4, 4.2, 5.0] // エンバーは少し遠くまで飛ばして広がりを出す
+        : [1.4, 2.1, 2.8, 3.4];
+    const speed = speedTiers[Math.floor(Math.random() * speedTiers.length)];
+    return {
+        x, y,
+        vx: Math.cos(angle) * speed,
+        vy: Math.sin(angle) * speed,
+        color,
+        size: 2 + Math.floor(Math.random() * 3), // 2〜4pxの正方形ドット
+        life: isEmber ? 75 + Math.random() * 55 : 40 + Math.random() * 25,
+        age: 0,
+        trail: [],
+        isEmber,
+        // 明滅の位相。sin波ではなくON/OFFの矩形波で点滅させる
+        blinkOffset: Math.floor(Math.random() * 6),
+        // このフレーム数を過ぎたら明滅をやめてなめらかなフェードに切り替える
+        blinkUntil: isEmber ? 16 + Math.random() * 10 : Infinity,
+    };
+}
+
+// 爆発の瞬間に広がるひし形のワイヤーフレーム衝撃波を1個生成する
+function spawnShockwaveRing(x, y, color) {
+    return { x, y, color, radius: 2, life: 26, age: 0 };
 }
 
 // 火の粉を1個生成する
@@ -203,6 +249,21 @@ function makeStageLightFixture(x, y, angle, color, alpha, length, sweepRange, sw
     };
 }
 
+// 四芒星（スパークル）のパスを構築する。呼び出し側でfillStyle設定後にctx.fill()すること
+function buildFourPointStarPath(ctx, cx, cy, outerRadius) {
+    const innerRadius = outerRadius * 0.25; // 細い棘にするため小さめの比率
+    ctx.beginPath();
+    for (let i = 0; i < 8; i++) {
+        const angle  = (Math.PI / 4) * i - Math.PI / 2; // 上（12時方向）から開始
+        const radius = i % 2 === 0 ? outerRadius : innerRadius;
+        const px = cx + Math.cos(angle) * radius;
+        const py = cy + Math.sin(angle) * radius;
+        if (i === 0) ctx.moveTo(px, py);
+        else ctx.lineTo(px, py);
+    }
+    ctx.closePath();
+}
+
 // ─────────────────────────────────────────
 // 背景エフェクト定義
 // ─────────────────────────────────────────
@@ -212,42 +273,138 @@ export const BG_EFFECTS = {
     none: {
         label: 'なし',
     },
-    stars: {
-        label: 'Stars（星）',
+    fireworks: {
+        label: 'Fireworks（花火）',
         init(width, height) {
-            const count = 40;
-            const stars = [];
-            for (let i = 0; i < count; i++) {
-                stars.push({
-                    x:      Math.random() * width,
-                    y:      Math.random() * height,
-                    radius: Math.random() * 1.2 + 0.5,
-                    phase:  Math.random() * Math.PI * 2, // 明滅のタイミングをずらす
-                    speed:  0.03 + Math.random() * 0.04, // 明滅の速さのばらつき
-                });
-            }
-            return stars;
+            return {
+                width,
+                height,
+                rockets: [],
+                particles: [],
+                rings: [],
+                // 最初の1発が上がるまでの待ち時間
+                nextLaunchFrame: 20 + Math.random() * 40,
+            };
         },
         draw(ctx, { effectData, frameCount }) {
-            effectData.forEach((star) => {
-                const twinkle = (Math.sin(frameCount * star.speed + star.phase) + 1) / 2;
-                const alpha = 0.2 + twinkle * 0.8; // 完全に消えないよう下限を設定
-                const r     = star.radius * (0.7 + twinkle * 0.6);
+            const { width, height } = effectData;
 
-                // 周囲の柔らかい光暈
-                const glow = ctx.createRadialGradient(star.x, star.y, 0, star.x, star.y, r * 4);
-                glow.addColorStop(0, `rgba(255, 255, 255, ${alpha * 0.6})`);
-                glow.addColorStop(1, 'rgba(255, 255, 255, 0)');
-                ctx.fillStyle = glow;
-                ctx.beginPath();
-                ctx.arc(star.x, star.y, r * 4, 0, Math.PI * 2);
-                ctx.fill();
+            // 打ち上げタイミング管理（一定間隔でランダムに発射、たまに2連発）
+            if (frameCount >= effectData.nextLaunchFrame) {
+                effectData.rockets.push(spawnFireworkRocket(width, height));
+                if (Math.random() < 0.25) {
+                    effectData.rockets.push(spawnFireworkRocket(width, height));
+                }
+                effectData.nextLaunchFrame = frameCount + 55 + Math.random() * 70;
+            }
 
-                // 四芒星本体
-                ctx.fillStyle = `rgba(255, 255, 255, ${alpha})`;
-                buildFourPointStarPath(ctx, star.x, star.y, r * 3);
-                ctx.fill();
+            ctx.save();
+            ctx.globalCompositeOperation = 'lighter'; // 加算合成で発光を重ねる
+
+            // ロケット（上昇中）の更新・描画。丸ではなく正方形ドットの尾を刻む
+            effectData.rockets = effectData.rockets.filter((rocket) => {
+                rocket.trail.push({ x: rocket.x, y: rocket.y });
+                if (rocket.trail.length > 8) rocket.trail.shift();
+
+                rocket.x += rocket.vx;
+                rocket.y += rocket.vy;
+                rocket.vy *= 0.995; // わずかに減速
+
+                // 走査線のようなドット状の尾
+                rocket.trail.forEach((pt, i) => {
+                    const a = (i / rocket.trail.length) * 0.6;
+                    ctx.fillStyle = `rgba(${rocket.color}, ${a})`;
+                    ctx.fillRect(pt.x - 1, pt.y - 1, 2, 2);
+                });
+
+                // 先端の光（正方形ドット）
+                ctx.fillStyle = `rgba(${rocket.color}, 0.95)`;
+                ctx.fillRect(rocket.x - 1.5, rocket.y - 1.5, 3, 3);
+
+                // 頂点到達（または勢いが尽きた）ら爆発してロケットは消滅
+                if (rocket.y <= rocket.targetY || rocket.vy > -0.5) {
+                    // 方向をsectorCount等分にして規則的に割れさせる（密度を上げてボリューム感を出す）
+                    const sectorCount = 14 + Math.floor(Math.random() * 8); // 14〜21方向
+                    const sectorAngle = (Math.PI * 2) / sectorCount;
+                    for (let i = 0; i < sectorCount; i++) {
+                        // 1方向あたり3〜4粒。最後の1粒だけ尾を引くエンバーにして余韻を残す
+                        const grains = 3 + Math.floor(Math.random() * 2);
+                        for (let g = 0; g < grains; g++) {
+                            const isEmber = g === grains - 1;
+                            effectData.particles.push(
+                                spawnFireworkParticle(rocket.x, rocket.y, rocket.color, sectorAngle, i, isEmber)
+                            );
+                        }
+                    }
+                    effectData.rings.push(spawnShockwaveRing(rocket.x, rocket.y, rocket.color));
+                    return false;
+                }
+                return true;
             });
+
+            // 衝撃波リング（ひし形のワイヤーフレームが広がって消える）
+            effectData.rings = effectData.rings.filter((ring) => {
+                ring.age++;
+                ring.radius += 2.6;
+                const alpha = Math.max(0, 1 - ring.age / ring.life);
+
+                ctx.save();
+                ctx.translate(ring.x, ring.y);
+                ctx.rotate(Math.PI / 4); // 正方形を45度回してひし形に見せる
+                ctx.strokeStyle = `rgba(${ring.color}, ${alpha * 0.8})`;
+                ctx.lineWidth = 1.5;
+                ctx.strokeRect(-ring.radius, -ring.radius, ring.radius * 2, ring.radius * 2);
+                ctx.restore();
+
+                return ring.age < ring.life;
+            });
+
+            // 爆発パーティクルの更新・描画（正方形ドット＋ON/OFFの矩形波で明滅）
+            effectData.particles = effectData.particles.filter((p) => {
+                p.age++;
+                // エンバー（尾を引くタイプ）は重力を強めにして柳が垂れるように落とす
+                const gravity = p.isEmber ? 0.05 : 0.03;
+                const drag    = p.isEmber ? 0.992 : 0.98; // 空気抵抗は弱めにして軌跡を長く見せる
+                p.vy += gravity;
+                p.vx *= drag;
+                p.vy *= drag;
+
+                // エンバーは尾を長めに残して余韻を出す
+                const trailMax = p.isEmber ? 7 : 3;
+                p.trail.push({ x: p.x, y: p.y });
+                if (p.trail.length > trailMax) p.trail.shift();
+
+                p.x += p.vx;
+                p.y += p.vy;
+
+                const t = p.age / p.life;
+                let alpha = t < 0.1 ? t / 0.1 : Math.max(0, 1 - (t - 0.1) / 0.9);
+
+                if (p.age < p.blinkUntil) {
+                    // 発生直後はON/OFFの矩形波で明滅させる（デジタル感）
+                    const blink = Math.floor(p.age / 3 + p.blinkOffset) % 2 === 0 ? 1 : 0.25;
+                    alpha *= blink;
+                } else if (p.isEmber) {
+                    // 明滅をやめてなめらかに減光させ、尾を引く余韻に見せる
+                    alpha *= 0.88;
+                }
+
+                // 尾（小さな正方形を並べる）
+                p.trail.forEach((pt, i) => {
+                    const a = alpha * (i / p.trail.length) * 0.5;
+                    const s = Math.max(1, p.size - 1);
+                    ctx.fillStyle = `rgba(${p.color}, ${a})`;
+                    ctx.fillRect(pt.x - s / 2, pt.y - s / 2, s, s);
+                });
+
+                // 本体（正方形ドット）
+                ctx.fillStyle = `rgba(${p.color}, ${alpha})`;
+                ctx.fillRect(p.x - p.size / 2, p.y - p.size / 2, p.size, p.size);
+
+                return p.age < p.life;
+            });
+
+            ctx.restore();
         },
     },
     sparks: {
@@ -397,6 +554,44 @@ export const BG_EFFECTS = {
             });
 
             ctx.restore();
+        },
+    },
+    stars: {
+        label: 'Stars（星）',
+        init(width, height) {
+            const count = 40;
+            const stars = [];
+            for (let i = 0; i < count; i++) {
+                stars.push({
+                    x:      Math.random() * width,
+                    y:      Math.random() * height,
+                    radius: Math.random() * 1.2 + 0.5,
+                    phase:  Math.random() * Math.PI * 2, // 明滅のタイミングをずらす
+                    speed:  0.03 + Math.random() * 0.04, // 明滅の速さのばらつき
+                });
+            }
+            return stars;
+        },
+        draw(ctx, { effectData, frameCount }) {
+            effectData.forEach((star) => {
+                const twinkle = (Math.sin(frameCount * star.speed + star.phase) + 1) / 2;
+                const alpha = 0.2 + twinkle * 0.8; // 完全に消えないよう下限を設定
+                const r     = star.radius * (0.7 + twinkle * 0.6);
+
+                // 周囲の柔らかい光暈
+                const glow = ctx.createRadialGradient(star.x, star.y, 0, star.x, star.y, r * 4);
+                glow.addColorStop(0, `rgba(255, 255, 255, ${alpha * 0.6})`);
+                glow.addColorStop(1, 'rgba(255, 255, 255, 0)');
+                ctx.fillStyle = glow;
+                ctx.beginPath();
+                ctx.arc(star.x, star.y, r * 4, 0, Math.PI * 2);
+                ctx.fill();
+
+                // 四芒星本体
+                ctx.fillStyle = `rgba(255, 255, 255, ${alpha})`;
+                buildFourPointStarPath(ctx, star.x, star.y, r * 3);
+                ctx.fill();
+            });
         },
     },
 };
