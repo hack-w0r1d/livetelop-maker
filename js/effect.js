@@ -170,7 +170,7 @@ function spawnFireworkRocket(width, height) {
         // 爆発する高さ（画面上側15%〜50%あたり）
         targetY: height * (0.15 + Math.random() * 0.35),
         vx: (Math.random() - 0.5) * 0.4, // わずかに左右へブレる
-        vy: -(3.2 + Math.random() * 1.3), // 上昇速度
+        vy: -(2.8 + Math.random() * 1.0), // 上昇速度
         trail: [], // 軌跡（古い位置ほど薄く描く）
         color: FIREWORK_COLORS[Math.floor(Math.random() * FIREWORK_COLORS.length)],
     };
@@ -186,8 +186,11 @@ function spawnFireworkParticle(x, y, color, sectorAngle, sectorIndex, isEmber) {
     const angle  = sectorAngle * sectorIndex + jitter;
     // 速度をなめらかな乱数ではなく数段階に量子化（デジタルな「刻み」感を出す）
     const speedTiers = isEmber
-        ? [2.6, 3.4, 4.2, 5.0] // エンバーは少し遠くまで飛ばして広がりを出す
-        : [1.4, 2.1, 2.8, 3.4];
+    ? [2.4, 3.2, 4.0, 4.8]
+    : [1.3, 1.9, 2.5, 3.1];
+    // const speedTiers = isEmber
+    //     ? [2.6, 3.4, 4.2, 5.0] // エンバーは少し遠くまで飛ばして広がりを出す
+    //     : [1.4, 2.1, 2.8, 3.4];
     const speed = speedTiers[Math.floor(Math.random() * speedTiers.length)];
     return {
         x, y,
@@ -195,7 +198,7 @@ function spawnFireworkParticle(x, y, color, sectorAngle, sectorIndex, isEmber) {
         vy: Math.sin(angle) * speed,
         color,
         size: 2.2 + Math.floor(Math.random() * 3), // 2〜4pxの正方形ドット
-        life: isEmber ? 75 + Math.random() * 55 : 40 + Math.random() * 25,
+        life: isEmber ? 90 + Math.random() * 60 : 55 + Math.random() * 35,
         age: 0,
         trail: [],
         isEmber,
@@ -308,7 +311,7 @@ export const BG_EFFECTS = {
 
                 rocket.x += rocket.vx;
                 rocket.y += rocket.vy;
-                rocket.vy *= 0.995; // わずかに減速
+                rocket.vy *= 0.99; // わずかに減速
 
                 // 走査線のようなドット状の尾
                 rocket.trail.forEach((pt, i) => {
