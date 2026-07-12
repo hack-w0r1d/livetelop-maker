@@ -186,7 +186,6 @@ function spawnFireworkParticle(x, y, color, sectorAngle, sectorIndex, isEmber) {
     const jitter = (Math.random() - 0.5) * sectorAngle * 0.5;
     const angle  = sectorAngle * sectorIndex + jitter;
     // 速度をなめらかな乱数ではなく数段階に量子化（デジタルな「刻み」感を出す）。
-    // 記憶の中の花火のようにスローモーションで開くよう、かなり速度を落としてある
     const speedTiers = isEmber
         ? [0.7, 0.9, 1.2, 1.5] // エンバーは少し遠くまで飛ばして広がりを出す
         : [0.4, 0.6, 0.8, 1.0];
@@ -199,7 +198,6 @@ function spawnFireworkParticle(x, y, color, sectorAngle, sectorIndex, isEmber) {
         vy: Math.sin(angle) * speed,
         color,
         size: 2.2 + Math.floor(Math.random() * 3), // 線の太さ計算に使う基準サイズ
-        // 速度を落とした分、同じ距離を飛びきれるよう寿命も延ばす
         life: isEmber ? 150 + Math.random() * 90 : 100 + Math.random() * 60,
         age: 0,
         trail: [],
@@ -207,21 +205,13 @@ function spawnFireworkParticle(x, y, color, sectorAngle, sectorIndex, isEmber) {
         // 明滅の位相。sin波ではなくON/OFFの矩形波で点滅させる
         blinkOffset: Math.floor(Math.random() * 6),
         // このフレーム数までは「中心からの直線」＋明滅で描画し、
-        // 以降は軌跡ポリラインのなめらかな尾に切り替える（開く速度が遅い分、期間も延ばす）
+        // 以降は軌跡ポリラインのなめらかな尾に切り替える
         rayUntil: 40 + Math.random() * 20,
         // 中心付近の空白（放射が見え始めるまでの距離）を個体ごとにばらけさせる。
-        // 固定値だと綺麗な円の穴になって不自然に見えるため
         holeRadius: 2 + Math.random() * 10,
     };
 }
 
-// 爆発の瞬間に広がるひし形のワイヤーフレーム衝撃波を1個生成する
-function spawnShockwaveRing(x, y, color) {
-    return { x, y, color, radius: 2, life: 26, age: 0 };
-}
-
-// パーティクルが寿命を迎えた地点に残す「ぱちぱち」した最後のきらめき。
-// 円形の粒が明滅しながら一定時間残り、儚く消えていく
 function spawnCrackle(x, y, color) {
     return {
         x,
@@ -323,7 +313,7 @@ export const BG_EFFECTS = {
             ctx.save();
             ctx.globalCompositeOperation = 'lighter'; // 加算合成で発光を重ねる
 
-            // ロケット（上昇中）の更新・描画。丸ではなく正方形ドットの尾を刻む
+            // ロケット（上昇中）の更新・描画
             effectData.rockets = effectData.rockets.filter((rocket) => {
                 rocket.trail.push({ x: rocket.x, y: rocket.y });
                 if (rocket.trail.length > 8) rocket.trail.shift();
@@ -332,14 +322,14 @@ export const BG_EFFECTS = {
                 rocket.y += rocket.vy;
                 rocket.vy *= 0.99; // わずかに減速
 
-                // 走査線のようなドット状の尾
+                // 走査線のような尾
                 rocket.trail.forEach((pt, i) => {
                     const a = (i / rocket.trail.length) * 0.6;
                     ctx.fillStyle = `rgba(${rocket.color}, ${a})`;
                     ctx.fillRect(pt.x - 1, pt.y - 1, 2, 2);
                 });
 
-                // 先端の光（正方形ドット）
+                // 先端の光
                 ctx.fillStyle = `rgba(${rocket.color}, 0.95)`;
                 ctx.fillRect(rocket.x - 1.5, rocket.y - 1.5, 3, 3);
 
@@ -367,14 +357,13 @@ export const BG_EFFECTS = {
             effectData.particles = effectData.particles.filter((p) => {
                 p.age++;
                 // エンバー（尾を引くタイプ）は重力を強めにして柳が垂れるように落とす。
-                // 速度をさらに落とした分、弧の見え方を揃えるため重力側も比例して弱めた
                 const gravity = p.isEmber ? 0.02 : 0.012;
                 const drag    = p.isEmber ? 0.992 : 0.98; // 空気抵抗は弱めにして軌跡を長く見せる
                 p.vy += gravity;
                 p.vx *= drag;
                 p.vy *= drag;
 
-                // エンバーは尾を長めに残して余韻を出す（線で繋ぐので点数多めのほうが滑らか）
+                // エンバーは尾を長めに残して余韻を出す
                 const trailMax = p.isEmber ? 9 : 5;
                 p.trail.push({ x: p.x, y: p.y });
                 if (p.trail.length > trailMax) p.trail.shift();
@@ -389,8 +378,6 @@ export const BG_EFFECTS = {
 
                 if (p.age < p.rayUntil) {
                     // 序盤：爆発中心から現在位置まで直線を引く。
-                    // 移動距離＝線の長さになるので、開く瞬間の勢いがそのまま光条として見える。
-                    // ただし始点を中心そのものにすると全方向の線が1点に重なって白飛びするため、
                     // 中心から少し離れた位置を始点にし、中心付近には空白を残す。
                     // 距離は個体ごとのholeRadiusを使い、綺麗な円にならないようにばらつかせる
                     const dx = p.x - p.originX;
@@ -448,20 +435,20 @@ export const BG_EFFECTS = {
                 }
 
                 if (p.age >= p.life) {
-                    // 寿命が尽きた場所に「ぱちぱち」明滅する残光を残して儚く消えていく
+                    // 寿命が尽きた場所に明滅する残光を残す
                     effectData.crackles.push(spawnCrackle(p.x, p.y, p.color));
                     return false;
                 }
                 return true;
             });
 
-            // 最後のきらめき（ぱちぱち明滅しながら儚く消えるクラックル）
+            // 最後のきらめき
             effectData.crackles = effectData.crackles.filter((c) => {
                 c.age++;
                 const t = c.age / c.life;
-                const fade = Math.max(0, 1 - t); // 消え際に向けてだんだん儚くなる
+                const fade = Math.max(0, 1 - t); // 消え際に向けてだんだん儚く
 
-                // 明滅の周期を消え際にかけて少しずつ長くして、静かに収まる「ぱちぱち」にする
+                // 明滅の周期を消え際にかけて少しずつ長くして、静かに収める
                 const period = 2 + Math.floor(t * 3);
                 const isOn = Math.floor((c.age + c.blinkOffset) / period) % 2 === 0;
 
