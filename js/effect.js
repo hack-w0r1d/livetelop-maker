@@ -151,18 +151,18 @@ export const TEXT_EFFECTS = {
 // 背景エフェクト用ユーティリティ
 // ─────────────────────────────────────────
 
-// 花火の色バリエーション（デジタル・ネオン系。RGB文字列でrgba()に直接埋め込んで使う）
+// 花火の色バリエーション（RGB文字列。rgba()に直接埋め込んで使う）
 const FIREWORK_COLORS = [
-    '255,74,74',    // Red
-    '66,245,138',   // Green
-    '255,217,61',   // Yellow
-    '46,107,255',   // Blue
-    '255,107,223',  // Pink
-    '83,232,255',   // Cyan
-    '255,140,46',   // Orange
+    '255,74,74',    // レッド
+    '66,245,138',   // グリーン
+    '255,217,61',   // イエロー
+    '46,107,255',   // ブルー
+    '255,107,223',  // ピンク
+    '83,232,255',   // シアン
+    '255,140,46',   // オレンジ
 ];
 
-// 打ち上げロケットを1個生成する
+// 打ち上げロケットを1個生成する（正方形ドットを刻みながら上昇＝走査線のイメージ）
 function spawnFireworkRocket(width, height) {
     return {
         x: width * (0.15 + Math.random() * 0.7),
@@ -176,42 +176,61 @@ function spawnFireworkRocket(width, height) {
     };
 }
 
-// 爆発の破片（パーティクル）を1個生成する。
+// 爆発の破片を1個生成する。
 // 角度をsectorCount方向に均等分割してからジッターを加えることで、
 // 完全ランダムではなく「規則的に割れる基盤」のような広がり方にする。
-// isEmberがtrueの場合は「燃え殻」として長寿命・尾長め・後半は明滅せず
-// じわっとフェードする（柳咲き花火のような余韻を残す）
+// 序盤(rayUntilまで)は爆発中心からの直線（光条）として描き、
+// それ以降は軌跡をポリラインで繋いだ尾として描く（点ではなく線で表現する）。
+// isEmberがtrueの場合は「燃え殻」として長寿命・尾長めにし、柳咲きのような余韻を残す
 function spawnFireworkParticle(x, y, color, sectorAngle, sectorIndex, isEmber) {
     const jitter = (Math.random() - 0.5) * sectorAngle * 0.5;
     const angle  = sectorAngle * sectorIndex + jitter;
-    // 速度をなめらかな乱数ではなく数段階に量子化（デジタルな「刻み」感を出す）
+    // 速度をなめらかな乱数ではなく数段階に量子化（デジタルな「刻み」感を出す）。
+    // 記憶の中の花火のようにスローモーションで開くよう、かなり速度を落としてある
     const speedTiers = isEmber
-    ? [2.4, 3.2, 4.0, 4.8]
-    : [1.3, 1.9, 2.5, 3.1];
-    // const speedTiers = isEmber
-    //     ? [2.6, 3.4, 4.2, 5.0] // エンバーは少し遠くまで飛ばして広がりを出す
-    //     : [1.4, 2.1, 2.8, 3.4];
+        ? [0.7, 0.9, 1.2, 1.5] // エンバーは少し遠くまで飛ばして広がりを出す
+        : [0.4, 0.6, 0.8, 1.0];
     const speed = speedTiers[Math.floor(Math.random() * speedTiers.length)];
     return {
         x, y,
+        originX: x, // 爆発中心（rayフェーズの線の起点として保持）
+        originY: y,
         vx: Math.cos(angle) * speed,
         vy: Math.sin(angle) * speed,
         color,
-        size: 2.2 + Math.floor(Math.random() * 3), // 2〜4pxの正方形ドット
-        life: isEmber ? 90 + Math.random() * 60 : 55 + Math.random() * 35,
+        size: 2.2 + Math.floor(Math.random() * 3), // 線の太さ計算に使う基準サイズ
+        // 速度を落とした分、同じ距離を飛びきれるよう寿命も延ばす
+        life: isEmber ? 150 + Math.random() * 90 : 100 + Math.random() * 60,
         age: 0,
         trail: [],
         isEmber,
         // 明滅の位相。sin波ではなくON/OFFの矩形波で点滅させる
         blinkOffset: Math.floor(Math.random() * 6),
-        // このフレーム数を過ぎたら明滅をやめてなめらかなフェードに切り替える
-        blinkUntil: isEmber ? 16 + Math.random() * 10 : Infinity,
+        // このフレーム数までは「中心からの直線」＋明滅で描画し、
+        // 以降は軌跡ポリラインのなめらかな尾に切り替える（開く速度が遅い分、期間も延ばす）
+        rayUntil: 40 + Math.random() * 20,
+        // 中心付近の空白（放射が見え始めるまでの距離）を個体ごとにばらけさせる。
+        // 固定値だと綺麗な円の穴になって不自然に見えるため
+        holeRadius: 2 + Math.random() * 10,
     };
 }
 
 // 爆発の瞬間に広がるひし形のワイヤーフレーム衝撃波を1個生成する
 function spawnShockwaveRing(x, y, color) {
     return { x, y, color, radius: 2, life: 26, age: 0 };
+}
+
+// パーティクルが寿命を迎えた地点に残す「ぱちぱち」した最後のきらめき。
+// 円形の粒が明滅しながら一定時間残り、儚く消えていく
+function spawnCrackle(x, y, color) {
+    return {
+        x,
+        y,
+        color,
+        age: 0,
+        life: 14 + Math.floor(Math.random() * 12),
+        blinkOffset: Math.floor(Math.random() * 4),
+    };
 }
 
 // 火の粉を1個生成する
@@ -277,14 +296,14 @@ export const BG_EFFECTS = {
         label: 'なし',
     },
     fireworks: {
-        label: 'Fireworks（花火）',
+        label: 'Fireworks（デジタル）',
         init(width, height) {
             return {
                 width,
                 height,
                 rockets: [],
                 particles: [],
-                rings: [],
+                crackles: [],
                 // 最初の1発が上がるまでの待ち時間
                 nextLaunchFrame: 20 + Math.random() * 40,
             };
@@ -330,7 +349,7 @@ export const BG_EFFECTS = {
                     const sectorCount = 14 + Math.floor(Math.random() * 8); // 14〜21方向
                     const sectorAngle = (Math.PI * 2) / sectorCount;
                     for (let i = 0; i < sectorCount; i++) {
-                        // 1方向あたり3〜4粒。最後の1粒だけ尾を引くエンバーにして余韻を残す
+                        // 1方向あたり4〜5粒。最後の1粒だけ尾を引くエンバーにして余韻を残す
                         const grains = 4 + Math.floor(Math.random() * 2);
                         for (let g = 0; g < grains; g++) {
                             const isEmber = g === grains - 1;
@@ -339,41 +358,24 @@ export const BG_EFFECTS = {
                             );
                         }
                     }
-                    effectData.rings.push(spawnShockwaveRing(rocket.x, rocket.y, rocket.color));
                     return false;
                 }
                 return true;
             });
 
-            // 衝撃波リング（ひし形のワイヤーフレームが広がって消える）
-            effectData.rings = effectData.rings.filter((ring) => {
-                ring.age++;
-                ring.radius += 2.6;
-                const alpha = Math.max(0, 1 - ring.age / ring.life);
-
-                ctx.save();
-                ctx.translate(ring.x, ring.y);
-                ctx.rotate(Math.PI / 4); // 正方形を45度回してひし形に見せる
-                ctx.strokeStyle = `rgba(${ring.color}, ${alpha * 0.8})`;
-                ctx.lineWidth = 1.5;
-                ctx.strokeRect(-ring.radius, -ring.radius, ring.radius * 2, ring.radius * 2);
-                ctx.restore();
-
-                return ring.age < ring.life;
-            });
-
             // 爆発パーティクルの更新・描画（正方形ドット＋ON/OFFの矩形波で明滅）
             effectData.particles = effectData.particles.filter((p) => {
                 p.age++;
-                // エンバー（尾を引くタイプ）は重力を強めにして柳が垂れるように落とす
-                const gravity = p.isEmber ? 0.05 : 0.03;
+                // エンバー（尾を引くタイプ）は重力を強めにして柳が垂れるように落とす。
+                // 速度をさらに落とした分、弧の見え方を揃えるため重力側も比例して弱めた
+                const gravity = p.isEmber ? 0.02 : 0.012;
                 const drag    = p.isEmber ? 0.992 : 0.98; // 空気抵抗は弱めにして軌跡を長く見せる
                 p.vy += gravity;
                 p.vx *= drag;
                 p.vy *= drag;
 
-                // エンバーは尾を長めに残して余韻を出す
-                const trailMax = p.isEmber ? 7 : 3;
+                // エンバーは尾を長めに残して余韻を出す（線で繋ぐので点数多めのほうが滑らか）
+                const trailMax = p.isEmber ? 9 : 5;
                 p.trail.push({ x: p.x, y: p.y });
                 if (p.trail.length > trailMax) p.trail.shift();
 
@@ -383,28 +385,95 @@ export const BG_EFFECTS = {
                 const t = p.age / p.life;
                 let alpha = t < 0.1 ? t / 0.1 : Math.max(0, 1 - (t - 0.1) / 0.9);
 
-                if (p.age < p.blinkUntil) {
-                    // 発生直後はON/OFFの矩形波で明滅させる（デジタル感）
-                    const blink = Math.floor(p.age / 3 + p.blinkOffset) % 2 === 0 ? 1 : 0.25;
-                    alpha *= blink;
-                } else if (p.isEmber) {
-                    // 明滅をやめてなめらかに減光させ、尾を引く余韻に見せる
-                    alpha *= 0.88;
+                ctx.lineCap = 'round';
+
+                if (p.age < p.rayUntil) {
+                    // 序盤：爆発中心から現在位置まで直線を引く。
+                    // 移動距離＝線の長さになるので、開く瞬間の勢いがそのまま光条として見える。
+                    // ただし始点を中心そのものにすると全方向の線が1点に重なって白飛びするため、
+                    // 中心から少し離れた位置を始点にし、中心付近には空白を残す。
+                    // 距離は個体ごとのholeRadiusを使い、綺麗な円にならないようにばらつかせる
+                    const dx = p.x - p.originX;
+                    const dy = p.y - p.originY;
+                    const dist = Math.hypot(dx, dy) || 1;
+                    const holeRadius = Math.min(p.holeRadius, dist);
+                    const startX = p.originX + (dx / dist) * holeRadius;
+                    const startY = p.originY + (dy / dist) * holeRadius;
+                    const blinkStart = p.rayUntil * 0.9;
+                    let blink = 1;
+                    if (p.age > blinkStart) {
+                        blink = Math.floor((p.age - blinkStart) / 3 + p.blinkOffset) % 2 === 0 ? 1 : 0.25;
+                    }
+                    const rayAlpha = alpha * blink;
+
+                    // 中心側(始点)を透明、先端側(現在位置)を通常alphaにするグラデーション。
+                    // 線が伸びるほど中心寄りの部分が透明になり、先端に光が集まって
+                    // 外へ向かって放射している印象になる
+                    const rayGradient = ctx.createLinearGradient(startX, startY, p.x, p.y);
+                    rayGradient.addColorStop(0, `rgba(${p.color}, 0)`);
+                    rayGradient.addColorStop(1, `rgba(${p.color}, ${rayAlpha})`);
+
+                    ctx.beginPath();
+                    ctx.moveTo(startX, startY);
+                    ctx.lineTo(p.x, p.y);
+                    ctx.strokeStyle = rayGradient;
+                    ctx.lineWidth = p.isEmber ? 2.4 : 1.8;
+                    ctx.stroke();
+                } else {
+                    // 後半：軌跡をポリラインで繋いだ尾に切り替える。
+                    // 重力で曲がった軌道もそのまま滑らかな曲線として残る
+                    for (let i = 1; i < p.trail.length; i++) {
+                        const segAlpha = alpha * (i / p.trail.length) * 0.85;
+                        ctx.beginPath();
+                        ctx.moveTo(p.trail[i - 1].x, p.trail[i - 1].y);
+                        ctx.lineTo(p.trail[i].x, p.trail[i].y);
+                        ctx.strokeStyle = `rgba(${p.color}, ${segAlpha})`;
+                        ctx.lineWidth = p.isEmber ? 2 : 1.4;
+                        ctx.stroke();
+                    }
+
+                    // エンバーはランダムなタイミングで一瞬白く強く光る「きらめき」を重ねる
+                    if (p.isEmber && Math.random() < 0.12) {
+                        const s = 3;
+                        const sparkleAlpha = alpha * (0.75 + Math.random() * 0.25);
+                        ctx.strokeStyle = `rgba(255,255,255, ${sparkleAlpha})`;
+                        ctx.lineWidth = 1;
+                        ctx.beginPath();
+                        ctx.moveTo(p.x - s, p.y);
+                        ctx.lineTo(p.x + s, p.y);
+                        ctx.moveTo(p.x, p.y - s);
+                        ctx.lineTo(p.x, p.y + s);
+                        ctx.stroke();
+                    }
                 }
 
-                // 尾（小さな正方形を並べる）
-                p.trail.forEach((pt, i) => {
-                    const a = alpha * (i / p.trail.length) * 0.5;
-                    const s = Math.max(1, p.size - 1);
-                    ctx.fillStyle = `rgba(${p.color}, ${a})`;
-                    ctx.fillRect(pt.x - s / 2, pt.y - s / 2, s, s);
-                });
+                if (p.age >= p.life) {
+                    // 寿命が尽きた場所に「ぱちぱち」明滅する残光を残して儚く消えていく
+                    effectData.crackles.push(spawnCrackle(p.x, p.y, p.color));
+                    return false;
+                }
+                return true;
+            });
 
-                // 本体（正方形ドット）
-                ctx.fillStyle = `rgba(${p.color}, ${alpha})`;
-                ctx.fillRect(p.x - p.size / 2, p.y - p.size / 2, p.size, p.size);
+            // 最後のきらめき（ぱちぱち明滅しながら儚く消えるクラックル）
+            effectData.crackles = effectData.crackles.filter((c) => {
+                c.age++;
+                const t = c.age / c.life;
+                const fade = Math.max(0, 1 - t); // 消え際に向けてだんだん儚くなる
 
-                return p.age < p.life;
+                // 明滅の周期を消え際にかけて少しずつ長くして、静かに収まる「ぱちぱち」にする
+                const period = 2 + Math.floor(t * 3);
+                const isOn = Math.floor((c.age + c.blinkOffset) / period) % 2 === 0;
+
+                if (isOn) {
+                    const r = 1.4 + Math.random() * 1.2;
+                    ctx.beginPath();
+                    ctx.fillStyle = `rgba(${c.color}, ${fade})`;
+                    ctx.arc(c.x, c.y, r, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+
+                return c.age < c.life;
             });
 
             ctx.restore();
