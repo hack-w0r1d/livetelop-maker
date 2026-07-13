@@ -151,15 +151,273 @@ export const TEXT_EFFECTS = {
 // 背景エフェクト用ユーティリティ
 // ─────────────────────────────────────────
 
+// ─────────────────────────────────────────
+// Celebration（祝福）用ヘルパー
+// ─────────────────────────────────────────
+const CONFETTI_COLORS = [
+    '255,90,90',   // 赤
+    '255,200,60',  // 黄
+    '90,190,255',  // 青
+    '120,220,120', // 緑
+    '255,130,220', // ピンク
+    '190,130,255', // 紫
+    '255,255,255', // 白
+];
+
+function degToRad(deg) { return (deg * Math.PI) / 180; }
+
+// クラッカーが画面端からどれだけ出っ張るか（水平位置）
+const CRACKER_MARGIN      = 18; // 画面端からの水平オフセット
+const CRACKER_CONE_LENGTH = 34; // コーンの長さ（持ち手～発射口）
+const CRACKER_REST_MARGIN = 6;  // 静止時、持ち手側が画面下端からどれだけ内側に収まるか
+const CRACKER_MOUTH_WIDTH  = 22; // 発射口（大きい側）の幅
+const CRACKER_ANCHOR_WIDTH = 6;  // 持ち手（小さい側）の幅
+const CRACKER_ANGLE = degToRad(73);
+
+// クラッカーの出現タイムライン（トリガーされてからの相対フレーム数）
+// ゆっくりせり上がり、コーン全体がテロップ内に収まったところで一旦止まって祝砲を打つ
+const CRACKER_PEEK_IN_END  = 26; // 0〜26: ゆっくりせり上がる
+const CRACKER_FIRE_FRAME   = 30; // 30: 全体が画面内に収まり静止した直後に祝砲を打つ（1回だけ）
+const CRACKER_HOLD_END     = 48; // 30〜48: 出たまま静止
+const CRACKER_PEEK_OUT_END = 66; // 48〜66: ひょこっと隠れる
+
+function makeCrackerState(side) {
+    return { side, triggered: false, fired: false, startFrame: 0 };
+}
+
+// クラッカーの持ち手（小さい側・隠れる側）のy座標
+// reveal: 0=完全に隠れている 〜 1=コーン全体が画面内に収まる静止位置
+function crackerAnchorY(height, reveal) {
+    const hiddenY = height + CRACKER_CONE_LENGTH + 12; // 完全に隠れている位置
+    const restY   = height - CRACKER_REST_MARGIN;      // コーン全体が画面内に収まる位置
+    return hiddenY + (restY - hiddenY) * reveal;
+}
+
+// クラッカーの向いている方向ベクトル（発射方向）
+function crackerDirection(side) {
+    const dir = side === 'left' ? 1 : -1;
+    const angle = dir * CRACKER_ANGLE;
+    return {
+        x: Math.sin(angle),
+        y: -Math.cos(angle),
+    };
+}
+
+// クラッカーの発射口（大きい側＝紙吹雪の発射位置）が静止時に来る座標
+function crackerMouthPosition(side, width, height) {
+    const dir = side === 'left' ? 1 : -1;
+    const anchorX = side === 'left' ? CRACKER_MARGIN : width - CRACKER_MARGIN;
+    const anchorY = crackerAnchorY(height, 1);
+    const d = crackerDirection(side);
+    return {
+        x: anchorX + d.x * CRACKER_CONE_LENGTH,
+        y: anchorY + d.y * CRACKER_CONE_LENGTH,
+    };
+}
+
+// 紙吹雪の1片を生成する
+// originX/originYを指定すると、その位置から初速つきで飛び出す「祝砲」パーティクルになる。
+// 指定しない場合は画面上部から自然に降ってくるアンビエントな紙吹雪になる
+function spawnConfettiPiece(width, originX = null, originY = null, initialVel = null) {
+    const isBurst = originX !== null;
+    const isRibbon = isBurst && Math.random() < 0.4;
+    return {
+        x: isBurst ? originX : Math.random() * width,
+        y: isBurst ? originY : -10 - Math.random() * 60,
+        vx: isBurst ? initialVel.vx : (Math.random() - 0.5) * 0.6,
+        vy: isBurst ? initialVel.vy : 0.6 + Math.random() * 0.8,
+        isRibbon,
+        w: isRibbon ? 2 + Math.random() * 1 : 4 + Math.random() * 3,
+        h: isRibbon ? 30 + Math.random() * 70 : 7 + Math.random() * 4,
+        rotation: isBurst ? Math.atan2(initialVel.vy, initialVel.vx) + Math.PI / 2 : Math.random() * Math.PI * 2,
+        rotationDelay: isBurst ? 35 + Math.random() * 15 : 0,
+        rotSpeed: isBurst ? (Math.random() - 0.5) * 0.05 : (Math.random() - 0.5) * 0.3,
+        color: CONFETTI_COLORS[Math.floor(Math.random() * CONFETTI_COLORS.length)],
+        swayPhase: Math.random() * Math.PI * 2,
+        swaySpeed: 0.03 + Math.random() * 0.05,
+        swayAmount: isBurst ? 0.8 + Math.random() * 0.8 : 0.3 + Math.random() * 0.5,
+        wavePhase: Math.random() * Math.PI * 2,
+        waveSpeed: 0.12 + Math.random() * 0.05,
+        waveDelay: 1 + Math.random() * 15,
+        age: 0,
+        gravity: isBurst ? 0.028 : 0.012,
+        drag: isBurst ? 0.985 : 0.995,
+    };
+}
+
+// 紙吹雪1片の物理更新＋描画。falseを返したら画面外なので破棄する
+function updateAndDrawConfettiPiece(ctx, c, height) {
+    c.vy += c.gravity;
+    c.vx *= c.drag;
+    c.vy *= c.drag;
+    c.swayPhase += c.swaySpeed;
+    if (c.isRibbon) {
+        c.wavePhase += c.waveSpeed;
+    }
+    c.age ++;
+    c.x += c.vx + Math.sin(c.swayPhase) * c.swayAmount;
+    c.y += c.vy;
+    if (c.age > c.rotationDelay) {
+        c.rotation += c.rotSpeed;
+    }
+
+    if (c.isRibbon) {
+        const speed = Math.hypot(c.vx, c.vy);
+            // 速度が落ちるほど波打ちを強くする
+        if (c.age > c.waveDelay) {
+            const waveProgress = Math.min(1, (c.age - c.waveDelay) / 30);
+            c.waveAmount = (0.8 + (7 - Math.min(speed, 7)) * 0.35) * waveProgress;
+        } else {
+            c.waveAmount = 0;
+        }
+    }
+
+    // 回転に応じて紙片の見かけの幅を伸縮させ、ひらひらと裏返る質感を出す
+    const flutter = Math.max(0.12, Math.abs(Math.cos(c.rotation)));
+
+    ctx.save();
+    ctx.translate(c.x, c.y);
+    ctx.rotate(c.rotation);
+
+    if (c.isRibbon) {
+        // -----------------------------
+        // 祝砲のリボン（波打つ）
+        // -----------------------------
+        ctx.strokeStyle = `rgba(${c.color}, 0.9)`;
+        ctx.lineWidth = c.w;
+        ctx.lineCap = 'round';
+        ctx.beginPath();
+
+        const segments = 6;
+
+        for (let i = 0; i <= segments; i++) {
+            const t = i / segments;
+            const y = -c.h / 2 + c.h * t;
+            const x = Math.sin(c.wavePhase + t * Math.PI * 2) * c.waveAmount;
+
+            if (i === 0) {
+                ctx.moveTo(x, y);
+            } else {
+                ctx.lineTo(x, y);
+            }
+        }
+
+        ctx.stroke();
+    } else {
+        // 通常の紙吹雪
+        ctx.fillStyle = `rgba(${c.color}, 0.9)`;
+        ctx.fillRect((-c.w * flutter) / 2, -c.h / 2, Math.max(0.6, c.w * flutter), c.h);
+    }
+
+    ctx.restore();
+
+    return c.y < height + 20;
+}
+
+// クラッカーの祝砲
+function fireCracker(effectData, side, width, height) {
+    const { x, y } = crackerMouthPosition(side, width, height);
+    const d = crackerDirection(side);
+    for (let i = 0; i < 20; i++) {
+        // 扇状に少しだけ広げる
+        const spread = (Math.random() - 0.5) * 0.5;
+        const dx = d.x + (-d.y) * spread;
+        const dy = d.y + ( d.x) * spread;
+        const len = Math.hypot(dx, dy);
+        const speed = 6.5 + Math.random() * 1.5;
+        effectData.confetti.push(
+            spawnConfettiPiece(width, x, y, {
+                vx: (dx / len) * speed,
+                vy: (dy / len) * speed,
+            })
+        );
+    }
+}
+
+// クラッカー本体（コーン状）を描画する。大きい側が発射口。reveal: 0=隠れている 〜 1=静止位置
+function drawCrackerShape(ctx, side, reveal, width, height) {
+    if (reveal <= 0) return;
+
+    const dir     = side === 'left' ? 1 : -1;
+    const baseX   = side === 'left' ? CRACKER_MARGIN : width - CRACKER_MARGIN;
+    const anchorY = crackerAnchorY(height, reveal); // 持ち手（小さい側）の位置
+
+    ctx.save();
+    ctx.translate(baseX, anchorY);
+    ctx.rotate(dir * CRACKER_ANGLE); // 祝砲の発射方向に合わせて傾ける
+
+    // 持ち手（小さい側・ローカルy=0）から発射口（大きい側・ローカルy=-coneLength）へ伸びるコーン
+    const grad = ctx.createLinearGradient(0, 0, 0, -CRACKER_CONE_LENGTH);
+    grad.addColorStop(0, '#d9a441');
+    grad.addColorStop(1, '#fff1b8');
+    ctx.fillStyle = grad;
+    ctx.beginPath();
+    ctx.moveTo(-CRACKER_ANCHOR_WIDTH / 2, 0);
+    ctx.lineTo(CRACKER_ANCHOR_WIDTH / 2, 0);
+    ctx.lineTo(CRACKER_MOUTH_WIDTH / 2, -CRACKER_CONE_LENGTH);
+    ctx.lineTo(-CRACKER_MOUTH_WIDTH / 2, -CRACKER_CONE_LENGTH);
+    ctx.closePath();
+    ctx.fill();
+
+    // 帯模様
+    ctx.strokeStyle = 'rgba(255,60,90,0.85)';
+    ctx.lineWidth = 2;
+    for (let i = 1; i <= 2; i++) {
+        const yy = -(CRACKER_CONE_LENGTH / 3) * i;
+        const w  = CRACKER_ANCHOR_WIDTH + (CRACKER_MOUTH_WIDTH - CRACKER_ANCHOR_WIDTH) * (-yy / CRACKER_CONE_LENGTH);
+        ctx.beginPath();
+        ctx.moveTo(-w / 2, yy);
+        ctx.lineTo(w / 2, yy);
+        ctx.stroke();
+    }
+
+    // 発射口のハイライト（大きい開口部）
+    ctx.fillStyle = 'rgba(255,255,255,0.9)';
+    ctx.beginPath();
+    ctx.ellipse(0, -CRACKER_CONE_LENGTH, CRACKER_MOUTH_WIDTH / 2, CRACKER_MOUTH_WIDTH / 6, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.restore();
+}
+
+// クラッカー1本分の状態更新＋描画（出現→発射→静止→退場）
+function updateAndDrawCracker(ctx, effectData, cracker, frameCount, width, height) {
+    if (!cracker.triggered) return;
+    const t = frameCount - cracker.startFrame;
+    if (t > CRACKER_PEEK_OUT_END) return;
+
+    if (!cracker.fired && t >= CRACKER_FIRE_FRAME) {
+        cracker.fired = true;
+        fireCracker(effectData, cracker.side, width, height);
+        // 最初（左）のクラッカーが発射したら、紙吹雪が舞い落ちるエフェクトへ入る
+        if (cracker.side === 'left') {
+            effectData.confettiActive = true;
+        }
+    }
+
+    let reveal;
+    if (t < CRACKER_PEEK_IN_END) {
+        const p = t / CRACKER_PEEK_IN_END;
+        reveal = 1 - (1 - p) * (1 - p); // ease-out: 勢いよく出てゆっくり止まる
+    } else if (t < CRACKER_HOLD_END) {
+        reveal = 1;
+    } else {
+        const p = (t - CRACKER_HOLD_END) / (CRACKER_PEEK_OUT_END - CRACKER_HOLD_END);
+        reveal = Math.max(0, 1 - p * p); // ease-in: ゆっくり隠れ始めて引っ込む
+    }
+
+    drawCrackerShape(ctx, cracker.side, reveal, width, height);
+}
+
 // 花火の色バリエーション（RGB文字列。rgba()に直接埋め込んで使う）
 const FIREWORK_COLORS = [
-    '255,74,74',    // レッド
-    '66,245,138',   // グリーン
-    '255,217,61',   // イエロー
-    '46,107,255',   // ブルー
-    '255,107,223',  // ピンク
-    '83,232,255',   // シアン
-    '255,140,46',   // オレンジ
+    '255,74,74',    // red
+    '66,245,138',   // green
+    '255,217,61',   // yellow
+    '46,107,255',   // blue
+    '255,107,223',  // pink
+    '83,232,255',   // cyan
+    '255,140,46',   // orange
 ];
 
 // 打ち上げロケットを1個生成する（正方形ドットを刻みながら上昇＝走査線のイメージ）
@@ -284,6 +542,50 @@ function buildFourPointStarPath(ctx, cx, cy, outerRadius) {
 export const BG_EFFECTS = {
     none: {
         label: 'なし',
+    },
+    celebration: {
+        label: 'Celebration（祝福）',
+        init(width, height) {
+            return {
+                width,
+                height,
+                confetti: [],
+                confettiActive: false,
+                nextConfettiFrame: 0,
+                leftCracker:  makeCrackerState('left'),
+                rightCracker: makeCrackerState('right'),
+            };
+        },
+        // textX/textWidth: 現在のテキストのx座標と幅（telop.jsから渡される）。
+        // テキストの先頭がtextX、末尾がtextX + textWidthの位置になる
+        draw(ctx, { effectData, frameCount, textX = 0, textWidth = 0 }) {
+            const { width, height } = effectData;
+            const triggerX = width * (2 / 3);
+
+            // 文字の先頭がテロップ中央に到達 → 左下からクラッカー登場
+            if (!effectData.leftCracker.triggered && textX <= triggerX) {
+                effectData.leftCracker.triggered = true;
+                effectData.leftCracker.startFrame = frameCount;
+            }
+            // 文字の末尾がテロップ中央に到達 → 右下からクラッカー登場
+            if (!effectData.rightCracker.triggered && textX + textWidth <= triggerX) {
+                effectData.rightCracker.triggered = true;
+                effectData.rightCracker.startFrame = frameCount;
+            }
+
+            // 紙吹雪の継続的なスポーン（左クラッカーの祝砲後に有効化）
+            if (effectData.confettiActive && frameCount >= effectData.nextConfettiFrame) {
+                effectData.confetti.push(spawnConfettiPiece(width));
+                effectData.nextConfettiFrame = frameCount + 2 + Math.random() * 3;
+            }
+
+            // 紙吹雪（アンビエント＋祝砲）の更新・描画
+            effectData.confetti = effectData.confetti.filter((c) => updateAndDrawConfettiPiece(ctx, c, height));
+
+            // クラッカー本体の更新・描画（紙吹雪より手前に重ねる）
+            updateAndDrawCracker(ctx, effectData, effectData.leftCracker, frameCount, width, height);
+            updateAndDrawCracker(ctx, effectData, effectData.rightCracker, frameCount, width, height);
+        },
     },
     fireworks: {
         label: 'Fireworks（デジタル）',

@@ -177,6 +177,8 @@ createTelopBtn.addEventListener('click', async () => {
         drawBackgroundEffect(ctx, state.bgEffect, {
             effectData: bgEffectData,
             frameCount,
+            textX: x,
+            textWidth,
         });
 
         setTextStyle(ctx, {
