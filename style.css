@@ -1,3 +1,9 @@
+:root {
+    --text: #f7f5f8;
+    --muted: #aaa8b2;
+    --line: white;
+}
+
 html {
     box-sizing: border-box;
 }
@@ -15,9 +21,14 @@ body {
     align-items: center;
 }
 
+main {
+    max-width: 900px;
+    margin: auto;
+    padding: 48px 18px 64px;
+}
+
 header {
     width: 100%;
-    padding-top: 25px;
     padding-bottom: 9px;
     margin-bottom: 25px;
     text-align: center;
@@ -25,6 +36,7 @@ header {
 }
 
 h1 {
+    padding-top: 25px;
     margin-bottom: 18px;
 
     --base-text: #ffffff;
@@ -53,6 +65,14 @@ h1 {
            text-shadow: 0 0 2px rgba(255,77,210,.15), 0 0 6px rgba(77,210,255,.1); }
     50%  { text-shadow: 0 0 10px rgba(255,77,210,.75), 0 0 26px rgba(77,210,255,.55), 0 0 42px rgba(179,102,255,.35); }
     100% { background-position: 0% 0; text-shadow: none; }
+}
+
+h1.page-title {
+    font-size: clamp(26px, 5vw, 36px);
+    letter-spacing: -.03em;
+    padding-top: 0;
+    color: var(--text);
+    animation: none;
 }
 
 input {
@@ -150,12 +170,25 @@ canvas {
     background: black;
     color: white;
     font-size: 1.1rem;
+    margin-top: 16px;
     padding: 8px 0;
 }
 
 .header-telop span {
     display: inline-block;
     will-change: transform;
+}
+
+.back-link {
+    display: inline-block;
+    margin-left: 10px;
+    color: orange;
+    font-size: 13px;
+    text-decoration: none;
+}
+
+.back-link:hover {
+    text-decoration: underline;
 }
 
 #main-container {
@@ -640,6 +673,15 @@ canvas {
     background: rgba(90, 0, 0, 0.75);
 }
 
+.help-text {
+    width: 85%;
+    margin: 10px auto 10px;
+    text-align: left;
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 14px;
+    letter-spacing: 0.03em;
+}
+
 #pipBtn {
     background-color: #1e90ff;
 }
@@ -656,26 +698,47 @@ canvas {
     background-color: #ff4fd8;
 }
 
-.help-text {
-    width: 85%;
-    margin: 10px auto 10px;
-    text-align: left;
-    color: rgba(255, 255, 255, 0.5);
-    font-size: 14px;
-    letter-spacing: 0.03em;
+.site-footer {
+    width: 100%;
+    margin-top: 48px;
+    border-top: 1px solid var(--line);
 }
 
-footer {
-    width: 100%;
-    margin: 25px 0 50px 0;
-    padding-top: 25px;
+.footer-inner {
+    margin: 0 auto;
+    padding: 28px 0 40px;
+}
+
+.footer-credit {
+    margin: 0 0 8px;
+    color: var(--muted);
+    font-size: 13px;
     text-align: center;
-    border-top: 1px solid white;
 }
 
 #x-logo {
     width: 24px;
-    margin: 10px;
+}
+
+.footer-social {
+    margin: 16px 0;
+    text-align: center;
+}
+
+.footer-links {
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+}
+
+.footer-links a {
+    color: var(--muted);
+    font-size: 12px;
+    text-decoration: none;
+}
+
+.footer-links a:hover {
+    text-decoration: underline;
 }
 
 .premium-key-modal {
@@ -764,6 +827,41 @@ footer {
     font-weight: bold;
 }
 
+.card {
+    padding: clamp(18px, 4vw, 28px);
+    margin-top: 16px;
+    background: linear-gradient(145deg, rgba(255, 255, 255, .035), transparent 45%), var(--surface);
+    border: 1px solid var(--line-subtle);
+    border-radius: 12px;
+    box-shadow: 0 18px 45px rgba(0, 0, 0, .22);
+}
+
+.privacy-content {
+    padding-top: 14px;
+    color: var(--muted);
+    font-size: 12px;
+    line-height: 1.75;
+}
+
+.privacy-content p {
+    margin: 0 0 12px;
+}
+
+.privacy-content h2 {
+    margin: 18px 0 4px;
+    color: var(--text);
+    font-size: 13px;
+}
+
+.privacy-content a {
+    color: #75e5bd;
+}
+
+.privacy-updated {
+    margin-bottom: 0 !important;
+    color: #85838e;
+}
+
 #snowCanvas {
     display: block;
     position: fixed;
@@ -773,4 +871,16 @@ footer {
     height: 100vh;
     pointer-events: none; /* 操作を邪魔しない */
     z-index: 9997;
-  }
+}
+
+@media (max-width: 650px) {
+    main {
+        padding-top: 32px;
+    }
+}
+
+@media (max-width: 420px) {
+    main {
+        padding: 24px 12px 40px;
+    }
+}

@@ -13,7 +13,6 @@
 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- ページタイトル -->
     <title>LiveTelop Maker - ライブ配信用テロップ作成ツール</title>
     <!-- 検索用説明文 -->
     <meta name="description" content="LiveTelop Makerは、誰でも簡単にライブ配信用テロップを作れるWebツールです。無料で使えてすぐ使用可能。">
@@ -30,7 +29,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho&family=Hachi+Maru+Pop&family=Potta+One&family=Rampart+One&family=Stick&family=DotGothic16&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css?v=2.7.0">
+    <link rel="stylesheet" href="style.css?v=2.8.0">
     <link rel="apple-touch-icon" sizes="192x192" href="apple-touch-icon.png">
   </head>
   <body>
@@ -41,7 +40,7 @@
     <div id="premiumOverlay" class="premium-overlay hidden"></div>
     <header>
       <h1>LiveTelop Maker</h1>
-      <p>for Streamers（iOS推奨）</p>
+      <span>for Streamers（iOS推奨）</span>
       <div class="header-telop">
         <span>
           スマホやタブレットで配信する配信者向けのオリジナルテロップ作成ツールです。
@@ -208,12 +207,18 @@
       <button id="pipBtn">テロップ使用</button>
       <div class="guide">テロップ作成後、上記のボタンから実際にテロップとして使用することができます。</div>
     </div>
-    <footer>
-      <p>Created By Ciel'N</p>
-      <a href="https://x.com/yu_cielkun" target="_blank" rel="noopener noreferrer">
-        <img id="x-logo" src="images/x-logo-white.png" alt="Xアカウント">
-      </a>
-      <p>ご質問・ご要望・お問い合わせなどはDMまで</p>
+    <footer class="site-footer">
+      <div class="footer-inner">
+        <p class="footer-credit">Created by Ciel'N</p>
+        <p class="footer-social">
+            <a href="https://x.com/yu_cielkun" target="_blank" rel="noopener noreferrer" aria-label="X (旧Twitter)">
+              <img id="x-logo" src="images/x-logo-white.png" alt="Xアカウント">
+            </a>
+        </p>
+        <p class="footer-links">
+            <a href="privacy.html">プライバシーポリシー</a>
+        </p>
+      </div>
     </footer>
     <div id="premiumKeyModal" class="hidden">
       <div class="premium-key-modal">
@@ -236,6 +241,6 @@
     </div>
     <canvas id="snowCanvas"></canvas>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie.min.js"></script>
-    <script type="module" src="js/main.js?v=2.7.0"></script>
+    <script type="module" src="js/main.js?v=2.8.0"></script>
   </body>
 </html>
