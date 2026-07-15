@@ -588,7 +588,7 @@ export const BG_EFFECTS = {
         },
     },
     fireworks: {
-        label: 'Fireworks（デジタル）',
+        label: 'Fireworks（花火）',
         init(width, height) {
             return {
                 width,
