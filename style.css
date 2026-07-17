@@ -179,14 +179,6 @@ canvas {
     will-change: transform;
 }
 
-.back-link {
-    display: inline-block;
-    margin-left: 10px;
-    color: orange;
-    font-size: 13px;
-    text-decoration: none;
-}
-
 .back-link:hover {
     text-decoration: underline;
 }
@@ -861,6 +853,15 @@ canvas {
     margin-bottom: 0 !important;
     color: #85838e;
 }
+
+.back-link {
+    display: block;
+    width: fit-content;
+    margin: 20px 20px 0 auto;
+    color: orange;
+    font-size: 13px;
+    text-decoration: none;
+  }
 
 #snowCanvas {
     display: block;
