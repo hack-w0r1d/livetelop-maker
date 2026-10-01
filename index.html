@@ -29,7 +29,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho&family=Hachi+Maru+Pop&family=Potta+One&family=Rampart+One&family=Stick&family=DotGothic16&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css?v=2.9.2">
+    <link rel="stylesheet" href="style.css?v=2.10.2">
     <link rel="apple-touch-icon" sizes="192x192" href="apple-touch-icon.png">
   </head>
   <body>
@@ -50,7 +50,7 @@
     <div id="main-container">
       <div id="showNotice" class="show-notice hidden"></div>
       <div class="guide">テロップにしたい文章を入力してください。</div>
-      <button id="applyPresetBtn" class="preset-btn">☆プリセットを適用する</button>
+      <button id="applyPresetBtn" class="preset-btn">⭐︎プリセット</button>
       <button id="deletePresetBtn" class="preset-btn">×プリセットを削除する</button>
       <div class="telop-input-wrapper">
         <input type="text" id="telopInput" placeholder="テロップにしたい文章を入力">
@@ -198,7 +198,7 @@
       </div>
       <!-- ここに動画を表示 -->
       <video id="pipVideo" loop playsinline></video>
-      <button id="savePresetBtn" class="preset-btn">☆現在の設定を保存する（1つまで）<br>※すでにあるプリセットは上書きされます</button>
+      <button id="savePresetBtn" class="preset-btn">⭐︎現在の設定を保存する</button>
       <button id="pipBtn">テロップ使用</button>
       <div class="help-text">
         ※ ブラウザからお使いいただくようお願いします。<br>
@@ -239,8 +239,50 @@
         </div>
       </div>
     </div>
+    <!-- プリセット選択モーダル（保存・適用共通） -->
+    <div id="presetModal" class="hidden">
+      <div class="premium-key-modal preset-modal">
+        <div class="premium-key-box">
+          <h3 id="presetModalTitle"></h3>
+          <p id="presetModalNote" class="premium-key-note preset-modal-note"></p>
+          <div id="presetSlotList" class="preset-slot-list"></div>
+          <div class="premium-key-actions preset-modal-actions">
+            <button id="presetModalSubmit" class="primary" type="button" disabled>適用する</button>
+            <button id="presetModalCancel" class="secondary" type="button">キャンセル</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- プリセット名入力モーダル（保存時） -->
+    <div id="presetNameModal" class="hidden">
+      <div class="premium-key-modal preset-modal">
+        <div class="premium-key-box">
+          <h3>プリセット名を入力</h3>
+          <p id="presetNameNote" class="premium-key-note preset-modal-note"></p>
+          <label class="preset-name-label" for="presetNameInput">プリセット名（20文字まで）</label>
+          <input type="text" id="presetNameInput" class="preset-name-input" maxlength="20" autocomplete="off">
+          <div class="premium-key-actions">
+            <button id="presetNameCancel" class="secondary" type="button">キャンセル</button>
+            <button id="presetNameSubmit" class="primary" type="button">この名前で保存</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- 確認モーダル（window.confirmの代わり。プリセットモーダルの上に重ねる） -->
+    <div id="confirmModal" class="hidden">
+      <div class="premium-key-modal confirm-modal">
+        <div class="premium-key-box">
+          <h3 id="confirmModalTitle"></h3>
+          <p id="confirmModalMessage" class="confirm-modal-message"></p>
+          <div class="premium-key-actions">
+            <button id="confirmModalCancel" class="secondary" type="button">キャンセル</button>
+            <button id="confirmModalOk" class="primary" type="button">OK</button>
+          </div>
+        </div>
+      </div>
+    </div>
     <canvas id="snowCanvas"></canvas>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie.min.js"></script>
-    <script type="module" src="js/main.js?v=2.9.2"></script>
+    <script type="module" src="js/main.js?v=2.10.2"></script>
   </body>
 </html>

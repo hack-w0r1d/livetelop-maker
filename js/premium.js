@@ -13,19 +13,19 @@ const unlockBtn       = document.getElementById('unlockBtn');
 
 // モーダル表示
 unlockBtn.addEventListener('click', () => {
-    premiumKeyModal.classList.remove('hidden');
-    premiumKeyInput.value = '';
+  premiumKeyModal.classList.remove('hidden');
+  premiumKeyInput.value = '';
 });
 
 // モーダル非表示
 document.getElementById('premiumKeyCancel').addEventListener('click', () => {
-    premiumKeyModal.classList.add('hidden');
+  premiumKeyModal.classList.add('hidden');
 });
 
 document.getElementById('premiumKeySubmit').addEventListener('click', submitPremiumKey);
 
 premiumKeyInput.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') submitPremiumKey();
+  if (e.key === 'Enter') submitPremiumKey();
 });
 
 // ─────────────────────────────────────────
@@ -33,57 +33,57 @@ premiumKeyInput.addEventListener('keydown', (e) => {
 // ─────────────────────────────────────────
 
 function submitPremiumKey() {
-    const key = premiumKeyInput.value.trim();
+  const key = premiumKeyInput.value.trim();
 
-    if (!key) {
-        alert('解放キーを入力してください');
-        return;
-    }
+  if (!key) {
+    alert('解放キーを入力してください');
+    return;
+  }
 
-    if (key === 'Sweet_dreams') {
-        localStorage.setItem('premium', 'true');
-        premiumKeyModal.classList.add('hidden');
-        showPremiumContent();
-        showPremiumAnimation();
-        setTimeout(() => glowPremiumBadge(), 3600);
-    } else {
-        alert('解放キーが正しくありません');
-    }
+  if (key === 'Sweet_dreams') {
+    localStorage.setItem('premium', 'true');
+    premiumKeyModal.classList.add('hidden');
+    showPremiumContent();
+    showPremiumAnimation();
+    setTimeout(() => glowPremiumBadge(), 3600);
+  } else {
+    alert('解放キーが正しくありません');
+  }
 }
 
 export function showPremiumContent() {
-    premiumLocked.classList.add('hidden');
-    document.getElementById('gradientPremiumContent').classList.remove('hidden');
-    document.getElementById('fontPremiumContent').classList.remove('hidden');
-    document.getElementById('textEffectPremiumContent').classList.remove('hidden');
-    document.getElementById('bgEffectPremiumContent').classList.remove('hidden');
+  premiumLocked.classList.add('hidden');
+  document.getElementById('gradientPremiumContent').classList.remove('hidden');
+  document.getElementById('fontPremiumContent').classList.remove('hidden');
+  document.getElementById('textEffectPremiumContent').classList.remove('hidden');
+  document.getElementById('bgEffectPremiumContent').classList.remove('hidden');
 }
 
 function showPremiumAnimation() {
-    premiumOverlay.classList.remove('hidden');
-    requestAnimationFrame(() => premiumOverlay.classList.add('show'));
+  premiumOverlay.classList.remove('hidden');
+  requestAnimationFrame(() => premiumOverlay.classList.add('show'));
 
-    setTimeout(() => {
-        premiumToast.classList.remove('hidden');
-        requestAnimationFrame(() => premiumToast.classList.add('show'));
-    }, 500);
+  setTimeout(() => {
+    premiumToast.classList.remove('hidden');
+    requestAnimationFrame(() => premiumToast.classList.add('show'));
+  }, 500);
 
-    setTimeout(() => premiumToast.classList.remove('show'), 2600);
-    setTimeout(() => premiumOverlay.classList.remove('show'), 3100);
+  setTimeout(() => premiumToast.classList.remove('show'), 2600);
+  setTimeout(() => premiumOverlay.classList.remove('show'), 3100);
 
-    setTimeout(() => {
-        premiumToast.classList.add('hidden');
-        premiumOverlay.classList.add('hidden');
-    }, 3600);
+  setTimeout(() => {
+    premiumToast.classList.add('hidden');
+    premiumOverlay.classList.add('hidden');
+  }, 3600);
 }
 
 function glowPremiumBadge() {
-    const badges = document.querySelectorAll('.badge');
-    badges.forEach(badge => {
-        badge.classList.remove('glow');
-        void badge.offsetWidth; // reflow強制でアニメーションをリセット
-        badge.classList.add('glow');
-    });
+  const badges = document.querySelectorAll('.badge');
+  badges.forEach(badge => {
+    badge.classList.remove('glow');
+    void badge.offsetWidth; // reflow強制でアニメーションをリセット
+    badge.classList.add('glow');
+  });
 }
 
 // ─────────────────────────────────────────
@@ -91,7 +91,7 @@ function glowPremiumBadge() {
 // ─────────────────────────────────────────
 
 export function initPremium() {
-    if (localStorage.getItem('premium') === 'true') {
-        showPremiumContent();
-    }
+  if (localStorage.getItem('premium') === 'true') {
+    showPremiumContent();
+  }
 }

@@ -1,128 +1,127 @@
 import {
-    state,
-    canvas, ctx,
-    telopInput, clearTelopBtn,
-    preview, previewWrapper,
-    defaultBgColor, defaultTextColor,
-    bgColor, textColor,
-    speedSlider, speedLabel, SPEED_LABELS, speedFromSlider,
-    gradientColorStart, gradientColorEnd,
-    fontSelect,
-    textEffectSelect, bgEffectSelect,
-    createTelopBtn,
-    applyPresetBtn, savePresetBtn, deletePresetBtn,
+  state,
+  canvas, ctx,
+  telopInput, clearTelopBtn,
+  preview, previewWrapper,
+  defaultBgColor, defaultTextColor,
+  bgColor, textColor,
+  speedSlider, speedLabel, SPEED_LABELS, speedFromSlider,
+  gradientColorStart, gradientColorEnd,
+  fontSelect,
+  textEffectSelect, bgEffectSelect,
+  createTelopBtn,
+  applyPresetBtn, savePresetBtn, deletePresetBtn,
 } from './state.js';
 import { initPremium }    from './premium.js';
 import { initTelop }      from './telop.js';
 import { TEXT_EFFECTS, BG_EFFECTS } from './effect.js';
 import {
-    requestAutoSave,
-    saveCurrentTelopState,
-    restoreCurrentTelopState,
-    showNotice,
-    hasPreset,
-    saveCurrentPreset,
-    applySavedPreset,
-    deletePreset,
+  requestAutoSave,
+  saveCurrentTelopState,
+  restoreCurrentTelopState,
+  showNotice,
+  hasPreset,
+  deletePreset,
 } from './storage.js';
+import { openPresetModal } from './preset.js';
 
 // ─────────────────────────────────────────
 // UI更新
 // ─────────────────────────────────────────
 export function updateUI() {
-    const has = hasPreset();
+  const has = hasPreset();
 
-    savePresetBtn.style.display   = state.isDirty ? 'inline-block' : 'none';
-    savePresetBtn.disabled        = !state.isDirty;
-    applyPresetBtn.style.display  = has ? 'inline-block' : 'none';
-    deletePresetBtn.style.display = has && state.isPresetApplied ? 'inline-block' : 'none';
+  savePresetBtn.style.display   = state.isDirty ? 'inline-block' : 'none';
+  savePresetBtn.disabled        = !state.isDirty;
+  applyPresetBtn.style.display  = has ? 'inline-block' : 'none';
+  deletePresetBtn.style.display = has && state.isPresetApplied ? 'inline-block' : 'none';
 }
 
 function updateClearTelopBtnVisibility() {
-    clearTelopBtn.style.display = telopInput.value.trim() ? 'block' : 'none';
+  clearTelopBtn.style.display = telopInput.value.trim() ? 'block' : 'none';
 }
 
 const effectStatus = document.getElementById('effectStatus');
 
 export function updateEffectStatus() {
-    const labels = [];
+  const labels = [];
 
-    if (state.textEffect !== 'none') {
-        const effect = TEXT_EFFECTS[state.textEffect];
-        if (effect) labels.push(`文字エフェクト: ${effect.label}`);
-    }
-    if (state.bgEffect !== 'none') {
-        const effect = BG_EFFECTS[state.bgEffect];
-        if (effect) labels.push(`背景エフェクト: ${effect.label}`);
-    }
+  if (state.textEffect !== 'none') {
+    const effect = TEXT_EFFECTS[state.textEffect];
+    if (effect) labels.push(`文字エフェクト: ${effect.label}`);
+  }
+  if (state.bgEffect !== 'none') {
+    const effect = BG_EFFECTS[state.bgEffect];
+    if (effect) labels.push(`背景エフェクト: ${effect.label}`);
+  }
 
-    if (labels.length === 0) {
-        effectStatus.textContent = '';
-        effectStatus.classList.add('hidden');
-        return;
-    }
+  if (labels.length === 0) {
+    effectStatus.textContent = '';
+    effectStatus.classList.add('hidden');
+    return;
+  }
 
-    effectStatus.textContent = labels.join(' / ');
-    effectStatus.classList.remove('hidden');
+  effectStatus.textContent = labels.join(' / ');
+  effectStatus.classList.remove('hidden');
 }
 
 export function updatePreviewTextStyle() {
-    previewWrapper.style.backgroundColor = bgColor.value;
+  previewWrapper.style.backgroundColor = bgColor.value;
 
-    if (state.gradientType === 'none') {
-        preview.style.color           = textColor.value;
-        preview.style.backgroundImage = 'none';
-        preview.style.removeProperty('-webkit-background-clip');
-        return;
-    }
+  if (state.gradientType === 'none') {
+    preview.style.color           = textColor.value;
+    preview.style.backgroundImage = 'none';
+    preview.style.removeProperty('-webkit-background-clip');
+    return;
+  }
 
-    const direction = state.gradientType === 'horizontal' ? 'to right' : 'to bottom';
-    preview.style.backgroundImage = `linear-gradient(${direction}, ${state.gradientColor1}, ${state.gradientColor2})`;
-    preview.style.backgroundClip  = 'text';
-    preview.style.setProperty('-webkit-background-clip', 'text');
-    preview.style.color = 'transparent';
+  const direction = state.gradientType === 'horizontal' ? 'to right' : 'to bottom';
+  preview.style.backgroundImage = `linear-gradient(${direction}, ${state.gradientColor1}, ${state.gradientColor2})`;
+  preview.style.backgroundClip  = 'text';
+  preview.style.setProperty('-webkit-background-clip', 'text');
+  preview.style.color = 'transparent';
 }
 
 export function updateTextColorUI() {
-    const wrapper = document.querySelector('.text-color-wrapper');
-    if (!wrapper) return;
-    const isGradient = state.gradientType !== 'none';
-    wrapper.style.opacity       = isGradient ? 0.4 : 1;
-    wrapper.style.pointerEvents = isGradient ? 'none' : 'auto';
+  const wrapper = document.querySelector('.text-color-wrapper');
+  if (!wrapper) return;
+  const isGradient = state.gradientType !== 'none';
+  wrapper.style.opacity       = isGradient ? 0.4 : 1;
+  wrapper.style.pointerEvents = isGradient ? 'none' : 'auto';
 }
 
 export function updateGradientUI() {
-    const isNone      = state.gradientType === 'none';
-    const colors      = document.querySelector('.gradient-colors');
-    const swapBtn     = document.getElementById('swapGradientBtn');
-    const swapColorBtn = document.getElementById('swapColorBtn');
-    if (!colors) return;
-    colors.style.opacity       = isNone ? 0.4 : 1;
-    colors.style.pointerEvents = isNone ? 'none' : 'auto';
-    if (swapBtn) swapBtn.style.display = isNone ? 'none' : 'inline-block';
-    if (swapColorBtn) swapColorBtn.style.display = isNone ? 'inline-block' : 'none';
+  const isNone      = state.gradientType === 'none';
+  const colors      = document.querySelector('.gradient-colors');
+  const swapBtn     = document.getElementById('swapGradientBtn');
+  const swapColorBtn = document.getElementById('swapColorBtn');
+  if (!colors) return;
+  colors.style.opacity       = isNone ? 0.4 : 1;
+  colors.style.pointerEvents = isNone ? 'none' : 'auto';
+  if (swapBtn) swapBtn.style.display = isNone ? 'none' : 'inline-block';
+  if (swapColorBtn) swapColorBtn.style.display = isNone ? 'inline-block' : 'none';
 }
 
 function updateSpeedLabel() {
-    const index = Math.min(Math.round(speedSlider.value / 25), 4);
-    speedLabel.textContent = SPEED_LABELS[index];
+  const index = Math.min(Math.round(speedSlider.value / 25), 4);
+  speedLabel.textContent = SPEED_LABELS[index];
 }
 
 function updateCreateTelopBtn() {
-    ctx.font = `48px "${state.fontFamily}", sans-serif`;
-    const speed = speedFromSlider(state.speedLevel);
-    const distance = canvas.width + ctx.measureText(state.telopText).width;
-    const durationSec = Math.ceil((distance / speed) / 60);
-    createTelopBtn.textContent = `テロップ作成 (${durationSec}s)`;
+  ctx.font = `48px "${state.fontFamily}", sans-serif`;
+  const speed = speedFromSlider(state.speedLevel);
+  const distance = canvas.width + ctx.measureText(state.telopText).width;
+  const durationSec = Math.ceil((distance / speed) / 60);
+  createTelopBtn.textContent = `テロップ作成 (${durationSec}s)`;
 }
 
 // ─────────────────────────────────────────
 // isDirtyフラグ管理
 // ─────────────────────────────────────────
 function markDirty() {
-    state.isDirty        = true;
-    state.isPresetApplied = false;
-    updateUI();
+  state.isDirty        = true;
+  state.isPresetApplied = false;
+  updateUI();
 }
 
 // ─────────────────────────────────────────
@@ -131,22 +130,22 @@ function markDirty() {
 
 // 背景色
 bgColor.addEventListener('input', () => {
-    updatePreviewTextStyle();
-    requestAutoSave();
+  updatePreviewTextStyle();
+  requestAutoSave();
 });
 bgColor.addEventListener('change', () => {
-    updatePreviewTextStyle();
-    markDirty();
+  updatePreviewTextStyle();
+  markDirty();
 });
 
 // 文字色
 textColor.addEventListener('input', () => {
-    updatePreviewTextStyle();
-    requestAutoSave();
+  updatePreviewTextStyle();
+  requestAutoSave();
 });
 textColor.addEventListener('change', () => {
-    updatePreviewTextStyle();
-    markDirty();
+  updatePreviewTextStyle();
+  markDirty();
 });
 
 const SNAP_CENTER  = 50;
@@ -154,145 +153,144 @@ const SNAP_ZONE    = 3;   // ±3の範囲でスナップ（47〜53）
 
 // テロップ速度
 speedSlider.addEventListener('input', () => {
-    let value = Number(speedSlider.value);
+  let value = Number(speedSlider.value);
 
-    const nearCenter = Math.abs(value - SNAP_CENTER) <= SNAP_ZONE;
-    if (nearCenter) {
-        value = SNAP_CENTER;
-        speedSlider.value = SNAP_CENTER;
-    }
+  const nearCenter = Math.abs(value - SNAP_CENTER) <= SNAP_ZONE;
+  if (nearCenter) {
+    value = SNAP_CENTER;
+    speedSlider.value = SNAP_CENTER;
+  }
 
-    state.speedLevel = value;
-    updateSpeedLabel();
-    updateCreateTelopBtn();
-    requestAutoSave();
+  state.speedLevel = value;
+  updateSpeedLabel();
+  updateCreateTelopBtn();
+  requestAutoSave();
 });
 speedSlider.addEventListener('change', () => {
-    markDirty();
+  markDirty();
 });
 
 // グラデーション方向
 document.querySelectorAll('input[name="gradientType"]').forEach(radio => {
-    radio.addEventListener('change', () => {
-        state.gradientType = radio.value;
-        markDirty();
-        updatePreviewTextStyle();
-        updateGradientUI();
-        updateTextColorUI();
-        requestAutoSave();
-    });
+  radio.addEventListener('change', () => {
+    state.gradientType = radio.value;
+    markDirty();
+    updatePreviewTextStyle();
+    updateGradientUI();
+    updateTextColorUI();
+    requestAutoSave();
+  });
 });
 
 // グラデーション色
 gradientColorStart.addEventListener('input', () => {
-    state.gradientColor1 = gradientColorStart.value;
-    updatePreviewTextStyle();
-    markDirty();
-    requestAutoSave();
+  state.gradientColor1 = gradientColorStart.value;
+  updatePreviewTextStyle();
+  markDirty();
+  requestAutoSave();
 });
 gradientColorEnd.addEventListener('input', () => {
-    state.gradientColor2 = gradientColorEnd.value;
-    updatePreviewTextStyle();
-    markDirty();
-    requestAutoSave();
+  state.gradientColor2 = gradientColorEnd.value;
+  updatePreviewTextStyle();
+  markDirty();
+  requestAutoSave();
 });
 
 // テロップ更新ボタン
 document.getElementById('updateTelopBtn').addEventListener('click', () => {
-    const text = telopInput.value.trim();
-    if (!text) return;
+  const text = telopInput.value.trim();
+  if (!text) return;
 
-    state.telopText       = text;
-    preview.textContent   = text;
-    state.isDirty         = true;
-    state.isPresetApplied = false;
+  state.telopText       = text;
+  preview.textContent   = text;
+  state.isDirty         = true;
+  state.isPresetApplied = false;
 
-    updatePreviewTextStyle();
-    saveCurrentTelopState();
-    updateCreateTelopBtn();
-    updateUI();
+  updatePreviewTextStyle();
+  saveCurrentTelopState();
+  updateCreateTelopBtn();
+  updateUI();
 });
 
 // テロップ入力
 telopInput.addEventListener('input', () => {
-    updateClearTelopBtnVisibility();
-    requestAutoSave();
+  updateClearTelopBtnVisibility();
+  requestAutoSave();
 });
 
 // クリアボタン（意図しない消去対策のため telopText や自動保存は更新しない）
 clearTelopBtn.addEventListener('click', () => {
-    telopInput.value = '';
-    updateClearTelopBtnVisibility();
+  telopInput.value = '';
+  updateClearTelopBtnVisibility();
 });
 
 // プリセット操作
 applyPresetBtn.addEventListener('click', () => {
-    applySavedPreset(() => {
-        updatePreviewTextStyle();
-        updateTextColorUI();
-        updateGradientUI();
-        updateSpeedLabel();
-        updateEffectStatus();
-        updateCreateTelopBtn();
-        updateUI();
-        showNotice('プリセットを適用しました');
-    });
-    applyPresetBtn.style.display = 'none';
+  openPresetModal('apply', (name) => {
+    updatePreviewTextStyle();
+    updateTextColorUI();
+    updateGradientUI();
+    updateSpeedLabel();
+    updateEffectStatus();
+    updateCreateTelopBtn();
+    updateUI();
+    showNotice(`プリセット「${name}」を適用しました`);
+  });
 });
 
 savePresetBtn.addEventListener('click', () => {
-    saveCurrentPreset(() => {
-        updateUI();
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-        showNotice('現在の設定をプリセットに保存しました', { type: 'green' });
-    });
+  openPresetModal('save', (name) => {
+    updateUI();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    showNotice(`プリセット「${name}」に保存しました`, { type: 'green' });
+  });
 });
 
 deletePresetBtn.addEventListener('click', () => {
-    deletePreset(() => {
-        updatePreviewTextStyle();
-        updateTextColorUI();
-        updateGradientUI();
-        updateSpeedLabel();
-        updateEffectStatus();
-        updateUI();
-        showNotice('プリセットを削除しました', { type: 'red' });
-    });
+  deletePreset(() => {
+    updatePreviewTextStyle();
+    updateTextColorUI();
+    updateGradientUI();
+    updateSpeedLabel();
+    updateEffectStatus();
+    updateUI();
+    showNotice('プリセットを削除しました', { type: 'red' });
+  });
 });
 
 // ─────────────────────────────────────────
 // ヘッダーテロップアニメーション
 // ─────────────────────────────────────────
 function initHeaderTelop() {
-    const headerTelop = document.querySelector('.header-telop span');
-    const containerWidth = headerTelop.parentElement.offsetWidth;
-    let x         = containerWidth;
-    let loopCount = 0;
-    const speed   = 1;
-    const maxLoop = 2;
+  const headerTelop = document.querySelector('.header-telop span');
+  const containerWidth = headerTelop.parentElement.offsetWidth;
+  let x         = containerWidth;
+  let loopCount = 0;
+  const speed   = 1;
+  const maxLoop = 2;
 
-    function animateTelop() {
-        headerTelop.style.transform = `translateX(${x}px)`;
-        x -= speed;
+  function animateTelop() {
+    headerTelop.style.transform = `translateX(${x}px)`;
+    x -= speed;
 
-        if (x < -headerTelop.offsetWidth) {
-            loopCount++;
-            if (loopCount < maxLoop) {
-                x = containerWidth;
-            } else {
-                const hour = new Date().getHours();
-                if      (hour >= 4  && hour < 11) headerTelop.textContent = 'おはようございます。良い一日を。';
-                else if (hour >= 11 && hour < 16) headerTelop.textContent = 'こんにちは。一日を楽しみましょう。';
-                else if (hour >= 16 && hour < 20) headerTelop.textContent = '夜に向けて、いい流れ作っていきましょう。';
-                else if (hour >= 20 && hour < 24) headerTelop.textContent = 'こんばんは。今日もお疲れ様です。';
-                else                              headerTelop.textContent = 'たまには夜更かしもいいよね。';
-                headerTelop.style.transform = 'translateX(0)';
-                return;
-            }
-        }
-        requestAnimationFrame(animateTelop);
+    if (x < -headerTelop.offsetWidth) {
+      loopCount++;
+      if (loopCount < maxLoop) {
+        x = containerWidth;
+      } else {
+        const hour = new Date().getHours();
+        if      (hour >= 4  && hour < 11) headerTelop.textContent = 'おはようございます。良い一日を。';
+        else if (hour >= 11 && hour < 16) headerTelop.textContent = 'こんにちは。一日を楽しみましょう。';
+        else if (hour >= 16 && hour < 20) headerTelop.textContent = '夜に向けて、いい流れ作っていきましょう。';
+        else if (hour >= 20 && hour < 24) headerTelop.textContent = 'こんばんは。今日もお疲れ様です。';
+        else                              headerTelop.textContent = 'たまには夜更かしもいいよね。';
+        headerTelop.style.transform = 'translateX(0)';
+        return;
+      }
     }
-    animateTelop();
+    requestAnimationFrame(animateTelop);
+  }
+  animateTelop();
 }
 
 // ─────────────────────────────────────────
@@ -300,72 +298,72 @@ function initHeaderTelop() {
 // ─────────────────────────────────────────
 window.addEventListener('DOMContentLoaded', () => {
 
-    restoreCurrentTelopState(() => {
-        updatePreviewTextStyle();
-        updateGradientUI();
-        updateTextColorUI();
-        updateEffectStatus();
-        updateUI();
-    });
-
-    const checked = document.querySelector('input[name="gradientType"]:checked');
-    state.gradientType = checked ? checked.value : 'none';
-
-    initPremium();
-    initTelop();
-
-    updateUI();
+  restoreCurrentTelopState(() => {
     updatePreviewTextStyle();
     updateGradientUI();
     updateTextColorUI();
     updateEffectStatus();
+    updateUI();
+  });
 
-    // 背景色と文字色の反転
-    document.getElementById('swapColorBtn').addEventListener('click', () => {
-        const tmp       = bgColor.value;
-        bgColor.value   = textColor.value;
-        textColor.value = tmp;
-        updatePreviewTextStyle();
-        markDirty();
-        requestAutoSave();
-    });
+  const checked = document.querySelector('input[name="gradientType"]:checked');
+  state.gradientType = checked ? checked.value : 'none';
 
-    // グラデーション色反転
-    document.getElementById('swapGradientBtn').addEventListener('click', () => {
-        [state.gradientColor1, state.gradientColor2] = [state.gradientColor2, state.gradientColor1];
-        gradientColorStart.value = state.gradientColor1;
-        gradientColorEnd.value   = state.gradientColor2;
-        updatePreviewTextStyle();
-        markDirty();
-        requestAutoSave();
-    });
+  initPremium();
+  initTelop();
 
-    // フォント選択
-    fontSelect.addEventListener('change', () => {
-        state.fontFamily = fontSelect.value;
-        preview.style.fontFamily = fontSelect.value;
-        markDirty();
-        requestAutoSave();
-    });
+  updateUI();
+  updatePreviewTextStyle();
+  updateGradientUI();
+  updateTextColorUI();
+  updateEffectStatus();
 
-    // 文字エフェクト選択
-    textEffectSelect.addEventListener('change', () => {
-        state.textEffect = textEffectSelect.value;
-        updateEffectStatus();
-        markDirty();
-        requestAutoSave();
-    });
+  // 背景色と文字色の反転
+  document.getElementById('swapColorBtn').addEventListener('click', () => {
+    const tmp       = bgColor.value;
+    bgColor.value   = textColor.value;
+    textColor.value = tmp;
+    updatePreviewTextStyle();
+    markDirty();
+    requestAutoSave();
+  });
 
-    // 背景エフェクト選択
-    bgEffectSelect.addEventListener('change', () => {
-        state.bgEffect = bgEffectSelect.value;
-        updateEffectStatus();
-        markDirty();
-        requestAutoSave();
-    });
+  // グラデーション色反転
+  document.getElementById('swapGradientBtn').addEventListener('click', () => {
+    [state.gradientColor1, state.gradientColor2] = [state.gradientColor2, state.gradientColor1];
+    gradientColorStart.value = state.gradientColor1;
+    gradientColorEnd.value   = state.gradientColor2;
+    updatePreviewTextStyle();
+    markDirty();
+    requestAutoSave();
+  });
 
-    updateSpeedLabel();
-    updateCreateTelopBtn();
+  // フォント選択
+  fontSelect.addEventListener('change', () => {
+    state.fontFamily = fontSelect.value;
+    preview.style.fontFamily = fontSelect.value;
+    markDirty();
+    requestAutoSave();
+  });
 
-    initHeaderTelop();
+  // 文字エフェクト選択
+  textEffectSelect.addEventListener('change', () => {
+    state.textEffect = textEffectSelect.value;
+    updateEffectStatus();
+    markDirty();
+    requestAutoSave();
+  });
+
+  // 背景エフェクト選択
+  bgEffectSelect.addEventListener('change', () => {
+    state.bgEffect = bgEffectSelect.value;
+    updateEffectStatus();
+    markDirty();
+    requestAutoSave();
+  });
+
+  updateSpeedLabel();
+  updateCreateTelopBtn();
+
+  initHeaderTelop();
 });
