@@ -8,7 +8,7 @@ import {
   gradientColorStart, gradientColorEnd,
   fontSelect,
   textEffectSelect, bgEffectSelect,
-} from './state.js';
+} from './state.js?v=2.11.1';
 
 // ─────────────────────────────────────────
 // LocalStorageキー
@@ -152,21 +152,11 @@ function showRestoreNotice(updatedAt) {
 }
 
 // ─────────────────────────────────────────
-// プリセット（最大3スロット。プレミアム会員のみ2・3を使用可）
+// プリセット（最大3スロット）
 // UI更新はmain.jsのコールバックで行う
 // ─────────────────────────────────────────
 export const PRESET_SLOT_COUNT = 3;
-const FREE_SLOT_COUNT = 1;
 let appliedPresetIndex = null; // 適用中のスロット番号（未適用ならnull）
-
-export function isPremiumUser() {
-  return localStorage.getItem('premium') === 'true';
-}
-
-// プレミアム会員でない場合はプリセット1のみ利用可
-export function isSlotAvailable(index) {
-  return index < FREE_SLOT_COUNT || isPremiumUser();
-}
 
 export function defaultPresetName(index) {
   return `プリセット${index + 1}`;
@@ -204,8 +194,6 @@ export function hasPreset() {
 
 // 確認モーダルは呼び出し側（preset.js）で表示する
 export function savePresetToSlot(index, name) {
-  if (!isSlotAvailable(index)) return;
-
   const presets = loadPresets();
   presets[index] = {
     name,
@@ -227,7 +215,7 @@ export function savePresetToSlot(index, name) {
 
 export function applySavedPreset(index, onComplete) {
   const preset = loadPresets()[index];
-  if (!preset || !isSlotAvailable(index)) return;
+  if (!preset) return;
 
   // DOM値を復元
   telopInput.value          = preset.text;

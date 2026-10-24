@@ -11,10 +11,9 @@ import {
   textEffectSelect, bgEffectSelect,
   createTelopBtn,
   applyPresetBtn, savePresetBtn, deletePresetBtn,
-} from './state.js';
-import { initPremium }    from './premium.js';
-import { initTelop }      from './telop.js';
-import { TEXT_EFFECTS, BG_EFFECTS } from './effect.js';
+} from './state.js?v=2.11.1';
+import { initTelop }      from './telop.js?v=2.11.1';
+import { TEXT_EFFECTS, BG_EFFECTS } from './effect.js?v=2.11.1';
 import {
   requestAutoSave,
   saveCurrentTelopState,
@@ -22,8 +21,8 @@ import {
   showNotice,
   hasPreset,
   deletePreset,
-} from './storage.js';
-import { openPresetModal } from './preset.js';
+} from './storage.js?v=2.11.1';
+import { openPresetModal } from './preset.js?v=2.11.1';
 
 // ─────────────────────────────────────────
 // UI更新
@@ -309,7 +308,6 @@ window.addEventListener('DOMContentLoaded', () => {
   const checked = document.querySelector('input[name="gradientType"]:checked');
   state.gradientType = checked ? checked.value : 'none';
 
-  initPremium();
   initTelop();
 
   updateUI();

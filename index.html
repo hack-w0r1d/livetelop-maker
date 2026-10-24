@@ -29,15 +29,10 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho&family=Hachi+Maru+Pop&family=Potta+One&family=Rampart+One&family=Stick&family=DotGothic16&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css?v=2.10.2">
+    <link rel="stylesheet" href="style.css?v=2.11.1">
     <link rel="apple-touch-icon" sizes="192x192" href="apple-touch-icon.png">
   </head>
   <body>
-    <!-- プレミアム機能解放時（一度のみ表示） -->
-    <div id="premiumToast" class="premium-toast hidden">
-      プレミアム機能を<br>解放しました 🎉
-    </div>
-    <div id="premiumOverlay" class="premium-overlay hidden"></div>
     <header>
       <h1>LiveTelop Maker</h1>
       <span>for Streamers（iOS推奨）</span>
@@ -48,6 +43,10 @@
       </div>
     </header>
     <div id="main-container">
+      <div class="premium-announce">
+        <div class="premium-announce-crown">👑</div>
+        <p class="premium-announce-text"><span class="premium-announce-em">プレミアム機能</span>が全ユーザーに解放されました</p>
+      </div>
       <div id="showNotice" class="show-notice hidden"></div>
       <div class="guide">テロップにしたい文章を入力してください。</div>
       <button id="applyPresetBtn" class="preset-btn">⭐︎プリセット</button>
@@ -94,7 +93,7 @@
               <span>Premium</span>
             </span>
           </h3>
-          <div class="premium-content hidden" id="gradientPremiumContent">
+          <div class="premium-content">
             <div class="gradient-direction">
               <label>
                 <input type="radio" name="gradientType" value="none" checked>
@@ -130,7 +129,7 @@
               <span>Premium</span>
             </span>
           </h3>
-          <div class="premium-content hidden" id="fontPremiumContent">
+          <div class="premium-content">
             <div class="font-selector">
               <select id="fontSelect">
                 <option value="-apple-system">標準</option>
@@ -152,7 +151,7 @@
               <span>Premium</span>
             </span>
           </h3>
-          <div class="premium-content hidden" id="textEffectPremiumContent">
+          <div class="premium-content">
             <div class="effect-selector">
               <select id="textEffectSelect">
                 <option value="none">なし</option>
@@ -170,7 +169,7 @@
               <span>Premium</span>
             </span>
           </h3>
-          <div class="premium-content hidden" id="bgEffectPremiumContent">
+          <div class="premium-content">
             <div class="effect-selector">
               <select id="bgEffectSelect">
                 <option value="none">なし</option>
@@ -182,12 +181,6 @@
               </select>
             </div>
           </div>
-        </div>
-        <!-- 未解放時に表示 -->
-        <div class="premium-locked" id="premiumLocked">
-          <button id="unlockBtn" class="unlock-btn">
-            機能を解放する
-          </button>
         </div>
       </div>
       <button id="createTelopBtn">テロップ作成</button>
@@ -220,31 +213,11 @@
         </p>
       </div>
     </footer>
-    <div id="premiumKeyModal" class="hidden">
-      <div class="premium-key-modal">
-        <div class="premium-key-box">
-          <h3>🪄 解放キーを入力してください</h3>
-          <p class="premium-key-note">
-            ※ 詳細は
-            <a href="https://x.com/yu_cielkun/status/2078048277262713323?s=20" target="_blank" rel="noopener noreferrer" class="x-link">
-              こちら
-            </a>
-            に記載しています（Xへのリンク）
-          </p>
-          <input type="text" id="premiumKeyInput">
-          <div class="premium-key-actions">
-            <button id="premiumKeyCancel" class="secondary">キャンセル</button>
-            <button id="premiumKeySubmit" class="primary">解放する</button>
-          </div>
-        </div>
-      </div>
-    </div>
     <!-- プリセット選択モーダル（保存・適用共通） -->
     <div id="presetModal" class="hidden">
       <div class="premium-key-modal preset-modal">
         <div class="premium-key-box">
           <h3 id="presetModalTitle"></h3>
-          <p id="presetModalNote" class="premium-key-note preset-modal-note"></p>
           <div id="presetSlotList" class="preset-slot-list"></div>
           <div class="premium-key-actions preset-modal-actions">
             <button id="presetModalSubmit" class="primary" type="button" disabled>適用する</button>
@@ -283,6 +256,6 @@
     </div>
     <canvas id="snowCanvas"></canvas>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie.min.js"></script>
-    <script type="module" src="js/main.js?v=2.10.2"></script>
+    <script type="module" src="js/main.js?v=2.11.1"></script>
   </body>
 </html>

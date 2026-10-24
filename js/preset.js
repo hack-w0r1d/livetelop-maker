@@ -1,18 +1,15 @@
-import { telopInput } from './state.js';
-import { showConfirm } from './confirm.js';
+import { telopInput } from './state.js?v=2.11.1';
+import { showConfirm } from './confirm.js?v=2.11.1';
 import {
   loadPresets,
   defaultPresetName,
-  isPremiumUser,
-  isSlotAvailable,
   savePresetToSlot,
   applySavedPreset,
-} from './storage.js';
+} from './storage.js?v=2.11.1';
 
 // preset.jsのみで使用するDOM参照はここでローカルに宣言
 const listModal     = document.getElementById('presetModal');
 const listTitle     = document.getElementById('presetModalTitle');
-const listNote      = document.getElementById('presetModalNote');
 const slotList      = document.getElementById('presetSlotList');
 const submitBtn     = document.getElementById('presetModalSubmit');
 const cancelBtn     = document.getElementById('presetModalCancel');
@@ -40,7 +37,6 @@ export function openPresetModal(newMode, onComplete) {
   selectedIndex = null;
 
   listTitle.textContent  = mode === 'save' ? '保存先のプリセットを選択' : '適用するプリセットを選択';
-  listNote.textContent   = isPremiumUser() ? '' : 'プリセット2・3はPremium会員のみ使用できます';
   submitBtn.textContent  = mode === 'save' ? '保存する' : '適用する';
   submitBtn.disabled     = true; // スロットを選ぶまで押せない
 
@@ -65,13 +61,12 @@ function renderSlots() {
   slotList.textContent = '';
 
   presets.forEach((preset, i) => {
-    const locked = !isSlotAvailable(i);
     const empty  = !preset;
 
     const btn = document.createElement('button');
     btn.type      = 'button';
     btn.className = 'preset-slot' + (i === selectedIndex ? ' is-selected' : '');
-    btn.disabled  = locked || (mode === 'apply' && empty);
+    btn.disabled  = mode === 'apply' && empty;
     btn.setAttribute('aria-pressed', String(i === selectedIndex));
 
     const name = document.createElement('span');
@@ -80,9 +75,7 @@ function renderSlots() {
 
     const meta = document.createElement('span');
     meta.className = 'preset-slot-meta';
-    if (locked) {
-      meta.textContent = '🔒 Premium限定';
-    } else if (empty) {
+    if (empty) {
       meta.textContent = mode === 'save' ? '空き' : '未保存';
     } else {
       meta.textContent = preset.text;

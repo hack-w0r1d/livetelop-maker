@@ -115,54 +115,6 @@ canvas {
   display: none;
 }
 
-.premium-toast {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%) scale(0.9);
-  opacity: 0;
-  background: linear-gradient(135deg, #4facfe, #ff5fd8);
-  color: white;
-  padding: 18px 26px;
-  border-radius: 16px;
-  font-weight: bold;
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
-  transition:
-    opacity 0.4s ease,
-    transform 0.4s ease;
-  z-index: 9999;
-  text-align: center;
-}
-
-.premium-toast.show {
-  opacity: 1;
-  transform: translate(-50%, -50%) scale(1);
-}
-
-.premium-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.45);
-  opacity: 0;
-  transition: opacity 0.45s ease;
-  z-index: 9998;
-}
-
-.premium-overlay.show {
-  opacity: 1;
-}
-
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translate(-50%, 10px);
-  }
-  to {
-    opacity: 1;
-    transform: translate(-50%, 0);
-  }
-}
-
 .header-telop {
   overflow: hidden;
   white-space: nowrap;
@@ -218,6 +170,59 @@ canvas {
 
 .show-notice.hidden {
   display: none;
+}
+
+.premium-announce {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 85%;
+  margin: 0 auto 10px;
+  padding: 8px 10px 10px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  background:
+    radial-gradient(circle at 0% 0%, rgba(124, 92, 255, 0.55), transparent 55%),
+    radial-gradient(circle at 100% 100%, rgba(59, 130, 246, 0.5), transparent 55%),
+    linear-gradient(160deg, #1a1650, #0d1033);
+}
+
+/* 下線 */
+.premium-announce::after {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: 2px;
+  background: linear-gradient(90deg, #8b5cf6, #22d3ee);
+  content: '';
+}
+
+.premium-announce-crown {
+  font-size: 16px;
+  line-height: 1;
+  filter: drop-shadow(0 0 6px rgba(255, 211, 77, 0.55));
+}
+
+/* スマホでも1行に収まるよう画面幅に応じて縮小する */
+.premium-announce-text {
+  margin: 0;
+  font-size: clamp(10px, 3.3vw, 14px);
+  font-weight: 800;
+  line-height: 1.4;
+  white-space: nowrap;
+  color: white;
+}
+
+/* 「プレミアム機能」だけゴールド */
+.premium-announce-em {
+  background: linear-gradient(180deg, #fff3a8, #ffc933);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
 }
 
 .guide {
@@ -488,62 +493,6 @@ canvas {
   color: transparent;
 }
 
-@keyframes premiumBadgeGlowTwice {
-  0% {
-    box-shadow:
-      0 0 0 1px rgba(0, 0, 0, 0.08),
-      0 2px 6px rgba(0, 0, 0, 0.6),
-      inset 0 0 0 1px rgba(255, 255, 255, 0.04);
-  }
-  15% {
-    box-shadow:
-    0 0 14px rgba(255, 79, 216, 0.55),
-    0 0 28px rgba(79, 195, 255, 0.35),
-    inset 0 0 0 1px rgba(255, 255, 255, 0.08);
-  }
-  30% {
-    box-shadow:
-    0 0 0 rgba(0, 0, 0, 0),
-    0 2px 6px rgba(0, 0, 0, 0.6),
-    inset 0 0 0 1px rgba(255, 255, 255, 0.04);
-  }
-  55% {
-    box-shadow:
-    0 0 18px rgba(79, 195, 255, 0.6),
-    0 0 32px rgba(255, 79, 216, 0.4),
-    inset 0 0 0 1px rgba(255, 255, 255, 0.1);
-  }
-  70% {
-    box-shadow:
-    0 0 0 rgba(0, 0, 0, 0),
-    0 2px 6px rgba(0, 0, 0, 0.6),
-    inset 0 0 0 1px rgba(255, 255, 255, 0.04);
-  }
-  100% {
-    box-shadow:
-      0 0 0 1px rgba(0, 0, 0, 0.08),
-      0 2px 6px rgba(0, 0, 0, 0.6),
-      inset 0 0 0 1px rgba(255, 255, 255, 0.04);
-  }
-}
-
-.badge.glow {
-  animation: premiumBadgeGlowTwice 2.2s ease;
-}
-
-.premium-locked {
-  text-align: center;
-}
-
-.unlock-btn {
-  background: linear-gradient(135deg, #ff5fd8, #6aa9ff);
-  border: none;
-  color: white;
-  border-radius: 8px;
-  cursor: pointer;
-  margin: 5px auto 13px;
-}
-
 .gradient-direction {
   margin: 15px 0 15px 10px;
 }
@@ -768,19 +717,6 @@ canvas {
   margin-bottom: 12px;
 }
 
-.x-link {
-  display: inline-block;
-  color: orange;
-  font-weight: 600;
-  text-decoration: none;
-  border-bottom: 1px solid rgba(255, 165, 0, 0.4);
-}
-
-.x-link:hover {
-  color: #ffb347;
-  border-bottom-color: rgba(255, 165, 0, 0.6);
-}
-
 .premium-key-box input {
   width: 100%;
   padding: 8px 10px;
@@ -809,7 +745,7 @@ canvas {
   color: rgba(255, 255, 255, 0.65);
   font-weight: normal;
   box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
-  transition: background 0.15 ease, color 0.15s ease;
+  transition: background 0.15s ease, color 0.15s ease;
   opacity: 0.9;
 }
 

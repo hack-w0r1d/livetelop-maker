@@ -7,15 +7,15 @@ import {
   speedFromSlider,
   createTelopBtn, pipBtn,
   isAndroid,
-} from './state.js';
+} from './state.js?v=2.11.1';
 import {
   saveCurrentTelopState,
   showNotice,
-} from './storage.js';
+} from './storage.js?v=2.11.1';
 import {
   drawTextWithEffect, resolveGlowColor,
   initBackgroundEffect, drawBackgroundEffect,
-} from './effect.js';
+} from './effect.js?v=2.11.1';
 
 // ─────────────────────────────────────────
 // 初期化
