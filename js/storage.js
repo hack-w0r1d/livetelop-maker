@@ -8,7 +8,7 @@ import {
   gradientColorStart, gradientColorEnd,
   fontSelect,
   textEffectSelect, bgEffectSelect,
-} from './state.js?v=2.11.1';
+} from './state.js?v=2.11.2';
 
 // ─────────────────────────────────────────
 // LocalStorageキー

@@ -1,11 +1,11 @@
-import { telopInput } from './state.js?v=2.11.1';
-import { showConfirm } from './confirm.js?v=2.11.1';
+import { telopInput } from './state.js?v=2.11.2';
+import { showConfirm } from './confirm.js?v=2.11.2';
 import {
   loadPresets,
   defaultPresetName,
   savePresetToSlot,
   applySavedPreset,
-} from './storage.js?v=2.11.1';
+} from './storage.js?v=2.11.2';
 
 // preset.jsのみで使用するDOM参照はここでローカルに宣言
 const listModal     = document.getElementById('presetModal');

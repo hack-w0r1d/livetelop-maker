@@ -7,15 +7,15 @@ import {
   speedFromSlider,
   createTelopBtn, pipBtn,
   isAndroid,
-} from './state.js?v=2.11.1';
+} from './state.js?v=2.11.2';
 import {
   saveCurrentTelopState,
   showNotice,
-} from './storage.js?v=2.11.1';
+} from './storage.js?v=2.11.2';
 import {
   drawTextWithEffect, resolveGlowColor,
   initBackgroundEffect, drawBackgroundEffect,
-} from './effect.js?v=2.11.1';
+} from './effect.js?v=2.11.2';
 
 // ─────────────────────────────────────────
 // 初期化
@@ -31,6 +31,22 @@ export function initTelop() {
     autoplay:  false,
     path:      'animations/cat.json',
   });
+}
+
+// ─────────────────────────────────────────
+// 録画フォーマット選択
+// ─────────────────────────────────────────
+// MediaRecorderが出力するWebMはduration/Cues(シーク用索引)を持たないため、
+// loop再生で先頭へシークした際にiOSのデコーダが復帰せず黒画面になる場合がある。
+// iOSではOS標準のMP4を優先し、非対応時のみWebMへフォールバックする。
+const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent)
+  || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+
+function pickRecorderMimeType() {
+  const candidates = isIOS
+    ? ['video/mp4;codecs=avc1', 'video/mp4', 'video/webm']
+    : ['video/webm'];
+  return candidates.find(type => MediaRecorder.isTypeSupported(type)) || '';
 }
 
 // ─────────────────────────────────────────
@@ -139,7 +155,8 @@ createTelopBtn.addEventListener('click', async () => {
   }, 1000);
 
   const stream   = canvas.captureStream(fps);
-  const recorder = new MediaRecorder(stream, { mimeType: 'video/webm' });
+  const mimeType = pickRecorderMimeType();
+  const recorder = new MediaRecorder(stream, mimeType ? { mimeType } : undefined);
   const chunks   = [];
   activeRecorder = recorder;
 
@@ -153,7 +170,7 @@ createTelopBtn.addEventListener('click', async () => {
       return;
     }
 
-    const blob = new Blob(chunks, { type: 'video/webm' });
+    const blob = new Blob(chunks, { type: recorder.mimeType || mimeType || 'video/webm' });
     if (video.src) URL.revokeObjectURL(video.src);
     video.src = URL.createObjectURL(blob);
     video.play();
